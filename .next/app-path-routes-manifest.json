@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/(public)/about/page": "/about",
+  "/(public)/contact/page": "/contact",
+  "/(public)/education/[educationId]/page": "/education/[educationId]",
+  "/(public)/events/[eventId]/page": "/events/[eventId]",
+  "/(public)/events/page": "/events",
+  "/(public)/education/page": "/education",
+  "/(public)/news/[newsId]/page": "/news/[newsId]",
+  "/(public)/news/page": "/news",
+  "/(public)/page": "/",
+  "/(public)/register/page": "/register"
+}
