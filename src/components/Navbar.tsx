@@ -62,13 +62,15 @@ function ActiveLink({
   return (
     <Link
       href={href}
-      className={`btn btn-ghost px-3 text-sm md:text-base ${
-        isActive ? "text-primary" : "opacity-80 hover:opacity-100"
+      className={`btn btn-ghost px-3 py-2 text-sm md:text-base transition-all duration-300 hover:scale-105 ${
+        isActive 
+          ? "text-primary bg-primary/10 border-primary/20" 
+          : "opacity-80 hover:opacity-100 hover:bg-base-200"
       }`}
     >
       {children}
       {isActive && (
-        <span className="block h-0.5 w-6 rounded bg-primary md:hidden" />
+        <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 h-0.5 w-6 rounded bg-primary md:hidden" />
       )}
     </Link>
   );
@@ -105,15 +107,15 @@ export default function Navbar() {
             </div>
             <ul
               tabIndex={0}
-              className="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
+              className="menu dropdown-content mt-3 w-64 rounded-xl bg-base-100 p-3 shadow-xl border border-base-200 backdrop-blur-sm"
             >
               {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
+                <li key={item.href} className="mb-1">
                   <ActiveLink href={item.href}>{item.label}</ActiveLink>
                 </li>
               ))}
-              <li className="mt-2">
-                <Link href="/register" className="btn btn-primary btn-sm">
+              <li className="mt-3 pt-2 border-t border-base-200">
+                <Link href="/register" className="btn btn-primary btn-sm w-full justify-center">
                   ثبت نام
                 </Link>
               </li>
@@ -122,11 +124,19 @@ export default function Navbar() {
 
           <Link
             href="/"
-            className="btn btn-ghost text-lg md:text-xl font-extrabold"
+            className="btn btn-ghost text-lg md:text-xl font-extrabold hover:bg-transparent"
           >
-            <span className="inline-flex items-center gap-2">
-              <Image src="/logo.png" alt="Logo" width={32} height={32} />
-              <span>رسانه ابوذر</span>
+            <span className="inline-flex items-center gap-2 md:gap-3">
+              <Image 
+                src="/logo.png" 
+                alt="Logo" 
+                width={40} 
+                height={40} 
+                className="w-8 h-8 md:w-10 md:h-10"
+              />
+              <span className="text-[10px] sm:text-xs md:text-sm lg:text-base leading-tight max-w-[120px] sm:max-w-none">
+                سازمان بسیج رسانه استان اصفهان
+              </span>
             </span>
           </Link>
         </div>
