@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -124,7 +125,7 @@ export default function Navbar() {
             className="btn btn-ghost text-lg md:text-xl font-extrabold"
           >
             <span className="inline-flex items-center gap-2">
-              <span className="mask mask-squircle h-7 w-7 bg-primary/20" />
+              <Image src="/logo.png" alt="Logo" width={32} height={32} />
               <span>رسانه ابوذر</span>
             </span>
           </Link>

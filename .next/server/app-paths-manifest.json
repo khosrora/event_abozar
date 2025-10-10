@@ -1,14 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(public)/about/page": "app/(public)/about/page.js",
-  "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(public)/education/[educationId]/page": "app/(public)/education/[educationId]/page.js",
-  "/(public)/events/[eventId]/page": "app/(public)/events/[eventId]/page.js",
-  "/(public)/events/page": "app/(public)/events/page.js",
-  "/(public)/education/page": "app/(public)/education/page.js",
-  "/(public)/news/[newsId]/page": "app/(public)/news/[newsId]/page.js",
-  "/(public)/news/page": "app/(public)/news/page.js",
-  "/(public)/page": "app/(public)/page.js",
-  "/(public)/register/page": "app/(public)/register/page.js"
+  "/(public)/page": "app/(public)/page.js"
 }

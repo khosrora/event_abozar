@@ -1,4 +1,4 @@
-import { iransans } from "@/lib/local_fonts";
+import { iransans , kalameh } from "@/lib/local_fonts";
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${iransans.variable}`}>
+      <body className={`${iransans.variable} ${kalameh.variable} bg-[#f1f2f3]`}>
         <Navbar /> {children} <Footer />
       </body>
     </html>

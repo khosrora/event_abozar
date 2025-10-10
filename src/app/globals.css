@@ -10,5 +10,9 @@ html {
 }
 
 body {
-  font-family: var(--font-iransans); /* پیش‌فرض: ایران‌سنس */
+  font-family: var(--font-iransans);
+  background-color: #f1f2f3; /* پیش‌فرض: ایران‌سنس */
+}
+.title-kalameh {
+  font-family: var(--font-kalameh);
 }

@@ -1,4 +1,4 @@
-// File: /Volumes/ADATA/dev/web/ghahreman/form/src/app/layout.tsx
+// File: C:\Users\Ali\Desktop\event\event_abozar\src\app\layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
