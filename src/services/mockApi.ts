@@ -8,12 +8,10 @@ import type {
   News,
   Event,
   EducationContent,
+  BackendPaginatedResponse,
 } from '@/types/api';
 
 import {
-  generateMockNewsResponse,
-  generateMockEventsResponse,
-  generateMockEducationResponse,
   mockNews,
   mockEvents,
   mockEducationContent,
@@ -23,34 +21,47 @@ import {
 const simulateDelay = (min = 300, max = 1000) => 
   new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
 
+// Helper to generate empty backend paginated response
+const emptyPaginatedResponse = <T>(): BackendPaginatedResponse<T> => ({
+  links: {
+    next: null,
+    previous: null
+  },
+  total_items: 0,
+  total_pages: 1,
+  current_page: 1,
+  page_size: null,
+  results: []
+});
+
 // Mock API Services
 export const mockNewsApi = {
   getAll: async (filters?: NewsFilters): Promise<NewsListResponse> => {
     await simulateDelay();
-    return generateMockNewsResponse(filters);
+    return emptyPaginatedResponse();
   },
 
-  getById: async (id: number): Promise<{ data: News }> => {
+  getById: async (id: number): Promise<News> => {
     await simulateDelay();
-    const news = mockNews.find(item => item.id === id);
+    const news = mockNews.find((item: any) => item.id === id);
     if (!news) {
       throw { message: 'خبر یافت نشد', statusCode: 404 };
     }
-    return { data: news };
+    return news;
   },
 
-  getBySlug: async (slug: string): Promise<{ data: News }> => {
+  getBySlug: async (slug: string): Promise<News> => {
     await simulateDelay();
-    const news = mockNews.find(item => item.slug === slug);
+    const news = mockNews.find((item: any) => item.slug === slug);
     if (!news) {
       throw { message: 'خبر یافت نشد', statusCode: 404 };
     }
-    return { data: news };
+    return news;
   },
 
   incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
     await simulateDelay(100, 300);
-    const news = mockNews.find(item => item.id === id);
+    const news = mockNews.find((item: any) => item.id === id);
     if (!news) {
       throw { message: 'خبر یافت نشد', statusCode: 404 };
     }
@@ -62,44 +73,40 @@ export const mockNewsApi = {
 export const mockEventsApi = {
   getAll: async (filters?: EventFilters): Promise<EventListResponse> => {
     await simulateDelay();
-    return generateMockEventsResponse(filters);
+    return emptyPaginatedResponse();
   },
 
-  getById: async (id: number): Promise<{ data: Event }> => {
+  getById: async (id: number): Promise<Event> => {
     await simulateDelay();
-    const event = mockEvents.find(item => item.id === id);
+    const event = mockEvents.find((item: any) => item.id === id);
     if (!event) {
       throw { message: 'رویداد یافت نشد', statusCode: 404 };
     }
-    return { data: event };
+    return event;
   },
 
-  getBySlug: async (slug: string): Promise<{ data: Event }> => {
+  getBySlug: async (slug: string): Promise<Event> => {
     await simulateDelay();
-    const event = mockEvents.find(item => item.slug === slug);
+    const event = mockEvents.find((item: any) => item.slug === slug);
     if (!event) {
       throw { message: 'رویداد یافت نشد', statusCode: 404 };
     }
-    return { data: event };
+    return event;
   },
 
   getFeatured: async (): Promise<{ data: Event[] }> => {
     await simulateDelay();
-    // Return first 3 events as featured
-    return { data: mockEvents.slice(0, 3) };
+    return { data: [] };
   },
 
   getUpcoming: async (limit = 6): Promise<{ data: Event[] }> => {
     await simulateDelay();
-    const upcomingEvents = mockEvents
-      .filter(event => event.status === 'upcoming' || event.status === 'active')
-      .slice(0, limit);
-    return { data: upcomingEvents };
+    return { data: [] };
   },
 
   incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
     await simulateDelay(100, 300);
-    const event = mockEvents.find(item => item.id === id);
+    const event = mockEvents.find((item: any) => item.id === id);
     if (!event) {
       throw { message: 'رویداد یافت نشد', statusCode: 404 };
     }
@@ -111,44 +118,40 @@ export const mockEventsApi = {
 export const mockEducationApi = {
   getAll: async (filters?: EducationFilters): Promise<EducationListResponse> => {
     await simulateDelay();
-    return generateMockEducationResponse(filters);
+    return emptyPaginatedResponse();
   },
 
-  getById: async (id: number): Promise<{ data: EducationContent }> => {
+  getById: async (id: number): Promise<EducationContent> => {
     await simulateDelay();
-    const content = mockEducationContent.find(item => item.id === id);
+    const content = mockEducationContent.find((item: any) => item.id === id);
     if (!content) {
       throw { message: 'محتوای آموزشی یافت نشد', statusCode: 404 };
     }
-    return { data: content };
+    return content;
   },
 
-  getBySlug: async (slug: string): Promise<{ data: EducationContent }> => {
+  getBySlug: async (slug: string): Promise<EducationContent> => {
     await simulateDelay();
-    const content = mockEducationContent.find(item => item.slug === slug);
+    const content = mockEducationContent.find((item: any) => item.slug === slug);
     if (!content) {
       throw { message: 'محتوای آموزشی یافت نشد', statusCode: 404 };
     }
-    return { data: content };
+    return content;
   },
 
   getFeatured: async (limit = 6): Promise<{ data: EducationContent[] }> => {
     await simulateDelay();
-    // Return first `limit` education content as featured
-    return { data: mockEducationContent.slice(0, limit) };
+    return { data: [] };
   },
 
   getByCategory: async (category: string, limit = 6): Promise<{ data: EducationContent[] }> => {
     await simulateDelay();
-    const categoryContent = mockEducationContent
-      .filter(content => content.category === category)
-      .slice(0, limit);
-    return { data: categoryContent };
+    return { data: [] };
   },
 
   incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
     await simulateDelay(100, 300);
-    const content = mockEducationContent.find(item => item.id === id);
+    const content = mockEducationContent.find((item: any) => item.id === id);
     if (!content) {
       throw { message: 'محتوای آموزشی یافت نشد', statusCode: 404 };
     }

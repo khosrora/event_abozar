@@ -2,8 +2,29 @@
 export interface ApiResponse<T = any> {
   data: T;
   message?: string;
-  status: 'success' | 'error';
-  statusCode: number;
+  status?: 'success' | 'error';
+  statusCode?: number;
+}
+
+// Custom Backend Pagination (actual structure from backend)
+export interface BackendPaginatedResponse<T> {
+  links: {
+    next: string | null;
+    previous: string | null;
+  };
+  total_items: number;
+  total_pages: number;
+  current_page: number;
+  page_size: number | null;
+  results: T[];
+}
+
+// Django REST Framework Pagination (kept for compatibility)
+export interface DjangoPaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 export interface PaginationMeta {
@@ -19,76 +40,124 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   meta: PaginationMeta;
 }
 
-// News Types
+// News Types (matches Django API)
 export interface News {
   id: number;
   title: string;
   description: string;
-  content?: string;
-  imageUrl?: string;
-  category: 'organization' | 'branches';
-  publishedAt: string;
-  author?: string;
-  slug?: string;
-  viewCount?: number;
-  isActive: boolean;
-  tags?: string[];
+  image: string | null;
+  publish_date: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
 }
 
-export type NewsListResponse = PaginatedResponse<News>;
+export interface NewsList {
+  id: number;
+  title: string;
+  publish_date: string;
+  tags: string[];
+  image?: string | null;
+}
 
-// Events Types
+export type NewsListResponse = BackendPaginatedResponse<NewsList>;
+export type NewsDetailResponse = News;
+
+// Events Types (matches Django API)
 export interface Event {
   id: number;
   title: string;
   description: string;
-  content?: string;
-  imageUrl?: string;
-  startDate: string;
-  endDate?: string;
-  location?: string;
-  category: string;
-  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
-  maxParticipants?: number;
-  currentParticipants?: number;
-  registrationDeadline?: string;
-  price?: number;
-  organizerName?: string;
-  organizerContact?: string;
-  slug?: string;
-  viewCount?: number;
-  tags?: string[];
-  requirements?: string[];
-  isRegistrationOpen: boolean;
+  image: string | null;
+  publish_date: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
 }
 
-export type EventListResponse = PaginatedResponse<Event>;
+export interface EventList {
+  id: number;
+  title: string;
+  publish_date: string;
+  tags: string[];
+  image?: string | null;
+}
 
-// Education Types
+export type EventListResponse = BackendPaginatedResponse<EventList>;
+export type EventDetailResponse = Event;
+
+// Education Types (matches Django API)
 export interface EducationContent {
   id: number;
   title: string;
   description: string;
-  content?: string;
-  imageUrl?: string;
-  videoUrl?: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  duration?: number; // in minutes
-  instructor?: string;
-  publishedAt: string;
-  slug?: string;
-  viewCount?: number;
-  likes?: number;
-  isActive: boolean;
-  prerequisites?: string[];
-  learningOutcomes?: string[];
-  tags?: string[];
+  image: string | null;
+  publish_date: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
 }
 
-export type EducationListResponse = PaginatedResponse<EducationContent>;
+export interface EducationList {
+  id: number;
+  title: string;
+  publish_date: string;
+  tags: string[];
+  image?: string | null;
+}
 
-// Registration Types
+export type EducationListResponse = BackendPaginatedResponse<EducationList>;
+export type EducationDetailResponse = EducationContent;
+
+// Festival Registration Types (matches Django API)
+export interface FestivalRegistrationData {
+  full_name: string;
+  father_name: string;
+  national_id: string;
+  gender: 'male' | 'female';
+  education: string;
+  phone_number: string;
+  virtual_number?: string;
+  province_id: number;
+  city_id: number;
+  media_name: string;
+  festival_format: string;
+  festival_topic: string;
+  special_section?: string;
+}
+
+export interface FestivalRegistration {
+  id: number;
+  full_name: string;
+  father_name: string;
+  national_id: string;
+  gender: 'male' | 'female';
+  education: string;
+  phone_number: string;
+  virtual_number?: string;
+  media_name: string;
+  festival_format: string;
+  festival_topic: string;
+  special_section?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FestivalRegistrationResponse = FestivalRegistration;
+
+// Province and City Types
+export interface Province {
+  id: number;
+  name: string;
+}
+
+export interface City {
+  id: number;
+  name: string;
+  province_id: number;
+}
+
+// Legacy Registration Types (for backward compatibility)
 export interface RegistrationData {
   fullName: string;
   education: string;
@@ -155,7 +224,7 @@ export interface NewsFilters extends BaseFilters {
 }
 
 export interface EventFilters extends BaseFilters {
-  status?: Event['status'];
+  status?: string;
   category?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -166,7 +235,7 @@ export interface EventFilters extends BaseFilters {
 }
 
 export interface EducationFilters extends BaseFilters {
-  level?: EducationContent['level'];
+  level?: string;
   category?: string;
   instructor?: string;
   durationMin?: number;

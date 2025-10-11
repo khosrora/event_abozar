@@ -4,20 +4,9 @@ import { useMemo, useState } from "react";
 import { useApiList } from "@/hooks/useApi";
 import { newsApi } from "@/services/adaptiveApi";
 import { SectionHeader, SearchToolbar, ItemCard, ItemGrid, EmptyState } from "@/components/common";
-import type { News } from "@/types/api";
-
-// Default image for news
-const DEFAULT_IMAGE = "https://lh3.googleusercontent.com/proxy/fD3l2yuxNWryA5LoLxE9HfsYNTplzj9w-KwNcJBPlcZYfJGtpzRS5JTIWYXq7Jp01QwuuqkOBJfGjwcOI1s9GxedKPrWnranGflaf0-VsVwcQvwkvV2ObeGRvQ";
-
-// تابع فرمت کردن تاریخ به فارسی
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('fa-IR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
+import type { NewsList } from "@/types/api";
+import { DEFAULT_IMAGES } from "@/constants";
+import { formatPersianDate } from "@/utils";
 
 // تابع تعیین نوع بج بر اساس دسته‌بندی
 function getCategoryBadge(category: string): { text: string; color: "primary" | "secondary" | "accent" } {
@@ -49,15 +38,14 @@ export default function NewsPage() {
     }
   });
 
-  // فیلتر کردن اخبار بر اساس جستجو
+  // فیلتر کردن اخبار بر اساس جستجو و برچسب‌ها
   const filteredNews = useMemo(() => {
     if (!news) return [];
     
     return news.filter((item) => {
       const matchesSearch = !searchQuery || 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.author?.toLowerCase().includes(searchQuery.toLowerCase());
+        item.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
       return matchesSearch;
     });
@@ -128,19 +116,16 @@ export default function NewsPage() {
         </ItemGrid>
       ) : filteredNews.length > 0 ? (
         <ItemGrid cols={3}>
-          {filteredNews.map((item) => {
-            const categoryBadge = getCategoryBadge(item.category);
-            return (
-              <ItemCard
-                key={item.id}
-                href={`/news/${item.id}`}
-                title={item.title}
-                excerpt={item.description}
-                meta={`${formatDate(item.publishedAt)}${item.author ? ` • ${item.author}` : ''} • ${categoryBadge.text}`}
-                image={item.imageUrl || DEFAULT_IMAGE}
-              />
-            );
-          })}
+          {filteredNews.map((item) => (
+            <ItemCard
+              key={item.id}
+              href={`/news/${item.id}`}
+              title={item.title}
+              meta={formatPersianDate(item.publish_date)}
+              image={item.image || DEFAULT_IMAGES.NEWS}
+              badge={item.tags && item.tags.length > 0 ? item.tags[0] : undefined}
+            />
+          ))}
         </ItemGrid>
       ) : (
         <EmptyState

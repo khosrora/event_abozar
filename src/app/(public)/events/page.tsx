@@ -4,37 +4,9 @@ import { useMemo, useState } from "react";
 import { useApiList } from "@/hooks/useApi";
 import { eventsApi } from "@/services/adaptiveApi";
 import { SectionHeader, SearchToolbar, ItemCard, ItemGrid, EmptyState } from "@/components/common";
-import type { Event } from "@/types/api";
-
-// Default image for events
-const DEFAULT_IMAGE = "https://lh3.googleusercontent.com/proxy/fD3l2yuxNWryA5LoLxE9HfsYNTplzj9w-KwNcJBPlcZYfJGtpzRS5JTIWYXq7Jp01QwuuqkOBJfGjwcOI1s9GxedKPrWnranGflaf0-VsVwcQvwkvV2ObeGRvQ";
-
-// تابع فرمت کردن تاریخ به فارسی
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('fa-IR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
-
-// تابع تعیین وضعیت رویداد
-function getEventStatus(event: Event): { text: string; color: "success" | "warning" | "error" } {
-  const now = new Date();
-  const startDate = new Date(event.startDate);
-  
-  // Handle optional endDate - use startDate if no endDate provided
-  const endDate = event.endDate ? new Date(event.endDate) : startDate;
-
-  if (now < startDate) {
-    return { text: "آینده", color: "success" };
-  } else if (now >= startDate && now <= endDate) {
-    return { text: "در حال برگزاری", color: "warning" };
-  } else {
-    return { text: "پایان یافته", color: "error" };
-  }
-}
+import type { EventList } from "@/types/api";
+import { DEFAULT_IMAGES } from "@/constants";
+import { formatPersianDate } from "@/utils";
 
 export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,17 +23,16 @@ export default function EventsPage() {
     params: { limit: 100 } // Load all events for filtering
   });
 
-  // فیلتر کردن رویدادها بر اساس جستجو و دسته‌بندی
+  // فیلتر کردن رویدادها بر اساس جستجو و برچسب‌ها
   const filteredEvents = useMemo(() => {
     if (!events) return [];
     
     return events.filter((event) => {
       const matchesSearch = !searchQuery || 
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location?.toLowerCase().includes(searchQuery.toLowerCase());
+        event.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const matchesCategory = category === "all" || event.category === category;
+      const matchesCategory = category === "all" || event.tags?.includes(category);
       
       return matchesSearch && matchesCategory;
     });
@@ -134,19 +105,16 @@ export default function EventsPage() {
         </ItemGrid>
       ) : filteredEvents.length > 0 ? (
         <ItemGrid cols={3}>
-          {filteredEvents.map((event) => {
-            const status = getEventStatus(event);
-            return (
-              <ItemCard
-                key={event.id}
-                href={`/events/${event.id}`}
-                title={event.title}
-                excerpt={event.description}
-                meta={`${formatDate(event.startDate)}${event.location ? ` • ${event.location}` : ''} • ${status.text}`}
-                image={DEFAULT_IMAGE} // Using default image for now
-              />
-            );
-          })}
+          {filteredEvents.map((event) => (
+            <ItemCard
+              key={event.id}
+              href={`/events/${event.id}`}
+              title={event.title}
+              meta={formatPersianDate(event.publish_date)}
+              image={event.image || DEFAULT_IMAGES.EVENT}
+              badge={event.tags && event.tags.length > 0 ? event.tags[0] : undefined}
+            />
+          ))}
         </ItemGrid>
       ) : (
         <EmptyState

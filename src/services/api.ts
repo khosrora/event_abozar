@@ -2,18 +2,23 @@ import { apiClient } from '@/lib/api';
 import type {
   News,
   NewsListResponse,
+  NewsDetailResponse,
   NewsFilters,
   Event,
   EventListResponse,
+  EventDetailResponse,
   EventFilters,
   EducationContent,
   EducationListResponse,
+  EducationDetailResponse,
   EducationFilters,
   RegistrationData,
   RegistrationResponse,
   ContactData,
   ContactResponse,
   SiteStats,
+  FestivalRegistrationData,
+  FestivalRegistrationResponse,
 } from '@/types/api';
 
 // News API
@@ -33,20 +38,13 @@ export const newsApi = {
       });
     }
     
-    const response = await apiClient.get(`/news?${params.toString()}`);
-    return response as NewsListResponse;
+    const response = await apiClient.get<NewsListResponse>(`/content/news/?${params.toString()}`);
+    return response;
   },
 
-  getById: async (id: number): Promise<{ data: News }> => {
-    return apiClient.get<News>(`/news/${id}`);
-  },
-
-  getBySlug: async (slug: string): Promise<{ data: News }> => {
-    return apiClient.get<News>(`/news/slug/${slug}`);
-  },
-
-  incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
-    return apiClient.post<{ viewCount: number }>(`/news/${id}/view`);
+  getById: async (id: number): Promise<NewsDetailResponse> => {
+    const response = await apiClient.get<NewsDetailResponse>(`/content/news/${id}/`);
+    return response;
   },
 };
 
@@ -67,32 +65,13 @@ export const eventsApi = {
       });
     }
     
-    const response = await apiClient.get(`/events?${params.toString()}`);
-    return response as EventListResponse;
+    const response = await apiClient.get<EventListResponse>(`/content/events/?${params.toString()}`);
+    return response;
   },
 
-  getById: async (id: number): Promise<{ data: Event }> => {
-    return apiClient.get<Event>(`/events/${id}`);
-  },
-
-  getBySlug: async (slug: string): Promise<{ data: Event }> => {
-    return apiClient.get<Event>(`/events/slug/${slug}`);
-  },
-
-  getFeatured: async (): Promise<{ data: Event[] }> => {
-    return apiClient.get<Event[]>('/events/featured');
-  },
-
-  getUpcoming: async (limit = 6): Promise<{ data: Event[] }> => {
-    return apiClient.get<Event[]>(`/events/upcoming?limit=${limit}`);
-  },
-
-  incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
-    return apiClient.post<{ viewCount: number }>(`/events/${id}/view`);
-  },
-
-  register: async (eventId: number, data: RegistrationData): Promise<RegistrationResponse> => {
-    return apiClient.post<{ registrationId: number }>(`/events/${eventId}/register`, data);
+  getById: async (id: number): Promise<EventDetailResponse> => {
+    const response = await apiClient.get<EventDetailResponse>(`/content/events/${id}/`);
+    return response;
   },
 };
 
@@ -113,73 +92,87 @@ export const educationApi = {
       });
     }
     
-    const response = await apiClient.get(`/education?${params.toString()}`);
-    return response as EducationListResponse;
+    const response = await apiClient.get<EducationListResponse>(`/content/education/?${params.toString()}`);
+    return response;
   },
 
-  getById: async (id: number): Promise<{ data: EducationContent }> => {
-    return apiClient.get<EducationContent>(`/education/${id}`);
-  },
-
-  getBySlug: async (slug: string): Promise<{ data: EducationContent }> => {
-    return apiClient.get<EducationContent>(`/education/slug/${slug}`);
-  },
-
-  getFeatured: async (limit = 6): Promise<{ data: EducationContent[] }> => {
-    return apiClient.get<EducationContent[]>(`/education/featured?limit=${limit}`);
-  },
-
-  getByCategory: async (category: string, limit = 6): Promise<{ data: EducationContent[] }> => {
-    return apiClient.get<EducationContent[]>(`/education/category/${category}?limit=${limit}`);
-  },
-
-  incrementView: async (id: number): Promise<{ data: { viewCount: number } }> => {
-    return apiClient.post<{ viewCount: number }>(`/education/${id}/view`);
+  getById: async (id: number): Promise<EducationDetailResponse> => {
+    const response = await apiClient.get<EducationDetailResponse>(`/content/education/${id}/`);
+    return response;
   },
 };
 
-// Registration API
+// Festival Registration API
+export const festivalApi = {
+  register: async (data: FestivalRegistrationData): Promise<FestivalRegistrationResponse> => {
+    return apiClient.post<FestivalRegistrationResponse>('/festival/registration/', data);
+  },
+
+  getProvinces: async () => {
+    return apiClient.get('/festival/provinces/');
+  },
+
+  getCities: async (provinceId?: number) => {
+    const params = provinceId ? `?province_id=${provinceId}` : '';
+    return apiClient.get(`/festival/cities/${params}`);
+  },
+};
+
+// Legacy Registration API (for backward compatibility)
 export const registrationApi = {
   submit: async (data: RegistrationData): Promise<RegistrationResponse> => {
-    return apiClient.post<{ registrationId: number }>('/registration', data);
-  },
-
-  getById: async (id: number): Promise<{ data: RegistrationData & { id: number; createdAt: string } }> => {
-    return apiClient.get<RegistrationData & { id: number; createdAt: string }>(`/registration/${id}`);
+    // Map to festival API format
+    const festivalData: FestivalRegistrationData = {
+      full_name: data.fullName,
+      father_name: data.fatherName,
+      national_id: data.nationalId,
+      gender: data.gender,
+      education: data.education,
+      phone_number: data.phoneNumber,
+      virtual_number: data.virtualNumber,
+      province_id: parseInt(data.province),
+      city_id: parseInt(data.city),
+      media_name: data.mediaName,
+      festival_format: data.category,
+      festival_topic: data.topic,
+      special_section: data.specialSection,
+    };
+    return festivalApi.register(festivalData) as any;
   },
 };
 
-// Contact API
+// Contact API (placeholder - not in schema)
 export const contactApi = {
   submit: async (data: ContactData): Promise<ContactResponse> => {
-    return apiClient.post<{ messageId: number }>('/contact', data);
+    return apiClient.post<{ messageId: number }>('/contact/', data) as any;
   },
 };
 
-// Stats API
+// Stats API (placeholder - not in schema)
 export const statsApi = {
   getSiteStats: async (): Promise<{ data: SiteStats }> => {
-    return apiClient.get<SiteStats>('/stats');
+    return apiClient.get<SiteStats>('/stats/') as any;
   },
 };
 
-// Search API
+// Search API (not in current schema)
 export const searchApi = {
   global: async (query: string, filters?: { type?: 'news' | 'events' | 'education' }): Promise<{
     data: {
       news: News[];
       events: Event[];
       education: EducationContent[];
-    }
+    };
   }> => {
     const params = new URLSearchParams({ q: query });
     if (filters?.type) {
       params.append('type', filters.type);
     }
-    return apiClient.get<{
+    const data = await apiClient.get<{
       news: News[];
       events: Event[];
       education: EducationContent[];
     }>(`/search?${params.toString()}`);
+    return { data } as any;
   },
 };

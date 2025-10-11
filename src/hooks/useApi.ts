@@ -105,14 +105,37 @@ export function useApi<T = any>(
   };
 }
 
-// Specialized hook for list data with pagination
+// Specialized hook for list data with pagination (Backend compatible)
 export function useApiList<T = any>(
-  apiFunction: (params?: any) => Promise<{ data: T[]; meta?: any }>,
+  apiFunction: (params?: any) => Promise<{ 
+    results: T[]; 
+    total_items?: number;
+    total_pages?: number;
+    current_page?: number;
+    page_size?: number | null;
+    links?: { next: string | null; previous: string | null };
+    // Django fallback
+    count?: number; 
+    next?: string | null; 
+    previous?: string | null;
+  }>,
   options: UseApiOptions & { params?: any } = {}
 ) {
   const { params = {}, immediate = false, ...apiOptions } = options;
   const [items, setItems] = useState<T[]>([]);
-  const [meta, setMeta] = useState<any>(null);
+  const [pagination, setPagination] = useState<{ 
+    total_items: number; 
+    total_pages: number;
+    current_page: number;
+    next: string | null; 
+    previous: string | null;
+  }>({
+    total_items: 0,
+    total_pages: 1,
+    current_page: 1,
+    next: null,
+    previous: null,
+  });
   
   // Memoize the API function to prevent infinite loops
   const memoizedApiFunction = useCallback(() => {
@@ -123,8 +146,15 @@ export function useApiList<T = any>(
     ...apiOptions,
     immediate: false, // We'll control when to execute
     onSuccess: (result) => {
-      setItems(result.data || []);
-      setMeta(result.meta || null);
+      setItems(result.results || []);
+      // Support both backend pagination structures
+      setPagination({
+        total_items: result.total_items ?? result.count ?? 0,
+        total_pages: result.total_pages ?? 1,
+        current_page: result.current_page ?? 1,
+        next: result.links?.next ?? result.next ?? null,
+        previous: result.links?.previous ?? result.previous ?? null,
+      });
       if (options.onSuccess) {
         options.onSuccess(result);
       }
@@ -146,12 +176,18 @@ export function useApiList<T = any>(
         
         if (additionalParams?.page > 1) {
           // Append to existing items for pagination
-          setItems(prev => [...prev, ...(result.data || [])]);
+          setItems(prev => [...prev, ...(result.results || [])]);
         } else {
           // Replace items for new search
-          setItems(result.data || []);
+          setItems(result.results || []);
         }
-        setMeta(result.meta || null);
+        setPagination({
+          total_items: result.total_items ?? result.count ?? 0,
+          total_pages: result.total_pages ?? 1,
+          current_page: result.current_page ?? 1,
+          next: result.links?.next ?? result.next ?? null,
+          previous: result.links?.previous ?? result.previous ?? null,
+        });
         return result;
       } catch (error) {
         throw error;
@@ -162,11 +198,17 @@ export function useApiList<T = any>(
 
   const refresh = useCallback(async () => {
     setItems([]);
-    setMeta(null);
+    setPagination({ total_items: 0, total_pages: 1, current_page: 1, next: null, previous: null });
     try {
       const result = await apiFunction(params);
-      setItems(result.data || []);
-      setMeta(result.meta || null);
+      setItems(result.results || []);
+      setPagination({
+        total_items: result.total_items ?? result.count ?? 0,
+        total_pages: result.total_pages ?? 1,
+        current_page: result.current_page ?? 1,
+        next: result.links?.next ?? result.next ?? null,
+        previous: result.links?.previous ?? result.previous ?? null,
+      });
       return result;
     } catch (error) {
       throw error;
@@ -181,10 +223,10 @@ export function useApiList<T = any>(
   return {
     ...api,
     items,
-    meta,
+    pagination,
     loadMore,
     refresh,
     execute,
-    hasMore: meta?.hasNext || false,
+    hasMore: !!pagination.next,
   };
 }

@@ -4,10 +4,8 @@ import { useMemo, useState } from "react";
 import { useApiList } from "@/hooks/useApi";
 import { educationApi } from "@/services/adaptiveApi";
 import { SectionHeader, SearchToolbar, ItemCard, ItemGrid, EmptyState } from "@/components/common";
-import type { EducationContent } from "@/types/api";
-
-// Default image for education content
-const DEFAULT_IMAGE = "https://lh3.googleusercontent.com/proxy/fD3l2yuxNWryA5LoLxE9HfsYNTplzj9w-KwNcJBPlcZYfJGtpzRS5JTIWYXq7Jp01QwuuqkOBJfGjwcOI1s9GxedKPrWnranGflaf0-VsVwcQvwkvV2ObeGRvQ";
+import type { EducationList } from "@/types/api";
+import { DEFAULT_IMAGES } from "@/constants";
 
 // تابع فرمت کردن مدت زمان
 function formatDuration(minutes?: number): string {
@@ -52,15 +50,14 @@ export default function EducationPage() {
     }
   });
 
-  // فیلتر کردن محتوا بر اساس جستجو
+  // فیلتر کردن محتوا بر اساس جستجو و برچسب‌ها
   const filteredContent = useMemo(() => {
     if (!educationContent) return [];
     
     return educationContent.filter((item) => {
       const matchesSearch = !searchQuery || 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.instructor?.toLowerCase().includes(searchQuery.toLowerCase());
+        item.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
       return matchesSearch;
     });
@@ -132,19 +129,16 @@ export default function EducationPage() {
         </ItemGrid>
       ) : filteredContent.length > 0 ? (
         <ItemGrid cols={3}>
-          {filteredContent.map((item) => {
-            const levelBadge = getLevelBadge(item.level);
-            return (
-              <ItemCard
-                key={item.id}
-                href={`/education/${item.id}`}
-                title={item.title}
-                excerpt={item.description}
-                meta={`${item.instructor ? `مدرس: ${item.instructor}` : ''}${item.duration ? ` • ${formatDuration(item.duration)}` : ''}`}
-                image={item.imageUrl || DEFAULT_IMAGE}
-              />
-            );
-          })}
+          {filteredContent.map((item) => (
+            <ItemCard
+              key={item.id}
+              href={`/education/${item.id}`}
+              title={item.title}
+              meta={new Date(item.publish_date).toLocaleDateString('fa-IR')}
+              image={item.image || DEFAULT_IMAGES.EDUCATION}
+              badge={item.tags && item.tags.length > 0 ? item.tags[0] : undefined}
+            />
+          ))}
         </ItemGrid>
       ) : (
         <EmptyState

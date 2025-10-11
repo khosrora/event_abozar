@@ -10,7 +10,7 @@ import type { ApiResponse, ApiError } from '@/types/api';
 // Create axios instance
 const api: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api',
-  timeout: 5000, // Reduced timeout for faster fallback to mock data
+  timeout: 15000, // Increased timeout for production API
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -41,9 +41,9 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse>) => {
-    // Success response handling
-    return response;
+  (response: AxiosResponse) => {
+    // Return response data directly (Django REST Framework returns data directly, not wrapped)
+    return response.data;
   },
   (error) => {
     console.error('API Error:', error);
@@ -126,10 +126,10 @@ api.interceptors.response.use(
 // Generic API request function
 export async function apiRequest<T = any>(
   config: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
+): Promise<T> {
   try {
-    const response = await api.request<ApiResponse<T>>(config);
-    return response.data;
+    const response = await api.request<T>(config);
+    return response as T;
   } catch (error) {
     throw error as ApiError;
   }
@@ -137,7 +137,7 @@ export async function apiRequest<T = any>(
 
 // HTTP method helpers
 export const apiClient = {
-  get: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+  get: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     return apiRequest<T>({ method: 'GET', url, ...config });
   },
 
@@ -145,7 +145,7 @@ export const apiClient = {
     url: string, 
     data?: any, 
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  ): Promise<T> => {
     return apiRequest<T>({ method: 'POST', url, data, ...config });
   },
 
@@ -153,7 +153,7 @@ export const apiClient = {
     url: string, 
     data?: any, 
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  ): Promise<T> => {
     return apiRequest<T>({ method: 'PUT', url, data, ...config });
   },
 
@@ -161,11 +161,11 @@ export const apiClient = {
     url: string, 
     data?: any, 
     config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  ): Promise<T> => {
     return apiRequest<T>({ method: 'PATCH', url, data, ...config });
   },
 
-  delete: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+  delete: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     return apiRequest<T>({ method: 'DELETE', url, ...config });
   },
 };

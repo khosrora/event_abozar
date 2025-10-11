@@ -6,11 +6,10 @@ import AnimatedSection from "@/components/AnimatedSection";
 import LoadingCard, { LoadingCardGrid, LoadingCardSlider } from "@/components/LoadingCard";
 import { useApiList, useApi } from "@/hooks/useApi";
 import { newsApi, eventsApi, educationApi } from "@/services/adaptiveApi";
-import type { News, Event, EducationContent } from "@/types/api";
+import type { NewsList, EventList, EducationList } from "@/types/api";
 
 // Shared image source for all image cards and hero poster
-const IMG =
-  "https://lh3.googleusercontent.com/proxy/fD3l2yuxNWryA5LoLxE9HfsYNTplzj9w-KwNcJBPlcZYfJGtpzRS5JTIWYXq7Jp01QwuuqkOBJfGjwcOI1s9GxedKPrWnranGflaf0-VsVwcQvwkvV2ObeGRvQ";
+const IMG = "/images/placeholder-event.jpg";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"organization" | "branches">(
@@ -22,7 +21,7 @@ export default function HomePage() {
     items: educationContent,
     loading: educationLoading,
     error: educationError,
-  } = useApiList(educationApi.getFeatured, {
+  } = useApiList(educationApi.getAll, {
     immediate: true,
     params: { limit: 6 },
   });
@@ -31,7 +30,7 @@ export default function HomePage() {
     items: upcomingEvents,
     loading: eventsLoading,
     error: eventsError,
-  } = useApiList(eventsApi.getUpcoming, {
+  } = useApiList(eventsApi.getAll, {
     immediate: true,
     params: { limit: 3 },
   });
@@ -42,7 +41,7 @@ export default function HomePage() {
     refresh: refreshOrgNews,
   } = useApiList(newsApi.getAll, {
     immediate: true,
-    params: { category: "organization", limit: 3 },
+    params: { limit: 3 },
   });
 
   const {
@@ -51,7 +50,7 @@ export default function HomePage() {
     execute: loadBranchNews,
   } = useApiList(newsApi.getAll, {
     immediate: false,
-    params: { category: "branches", limit: 3 },
+    params: { limit: 3 },
   });
 
   // Load branch news when tab changes (with proper dependency)
@@ -157,14 +156,14 @@ export default function HomePage() {
         >
           <figure className="relative overflow-hidden">
             <img
-              src={item.imageUrl || IMG}
+              src={item.image || IMG}
               alt={item.title}
               className="h-44 md:h-48 w-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute top-3 right-3 bg-primary text-primary-content text-xs px-2 py-1 rounded-full font-semibold">
-              {item.level === 'beginner' ? 'مبتدی' : item.level === 'intermediate' ? 'متوسط' : 'پیشرفته'}
+              {item.tags?.[0] || "عمومی"}
             </div>
           </figure>
           <div className="card-body p-4 md:p-5">
@@ -172,7 +171,7 @@ export default function HomePage() {
               {item.title}
             </h3>
             <p className="text-xs md:text-sm opacity-70 leading-relaxed line-clamp-3">
-              {item.description}
+              {item.title}
             </p>
             <div className="card-actions justify-between items-center mt-4">
               <div className="flex items-center gap-1 text-xs text-base-content/60">
@@ -180,10 +179,10 @@ export default function HomePage() {
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                   <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
                 </svg>
-                <span>{item.viewCount || 0} بازدید</span>
+                <span>{0} بازدید</span>
               </div>
               <Link 
-                href={`/education/${item.slug || item.id}`} 
+                href={`/education/${item.id}`} 
                 className="btn btn-primary btn-sm hover:btn-secondary transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 مشاهده
@@ -234,7 +233,7 @@ export default function HomePage() {
       {upcomingEvents[0] && (
         <div className="md:col-span-2 lg:col-span-2 relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 min-h-[280px] md:min-h-[320px]">
           <img
-            src={upcomingEvents[0].imageUrl || IMG}
+            src={upcomingEvents[0].image || IMG}
             alt={upcomingEvents[0].title}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
@@ -242,17 +241,17 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
           
           <div className="absolute top-4 right-4 bg-primary text-primary-content px-3 py-1 rounded-full text-xs font-semibold">
-            {new Date(upcomingEvents[0].startDate).toLocaleDateString('fa-IR')}
+            {new Date(upcomingEvents[0].publish_date).toLocaleDateString('fa-IR')}
           </div>
 
           <div className="relative z-10 flex flex-col justify-end p-5 md:p-6 h-full text-white">
             <h3 className="text-lg md:text-2xl font-bold mb-2 title-kalameh">{upcomingEvents[0].title}</h3>
             <p className="opacity-90 text-sm md:text-base leading-relaxed mb-4 line-clamp-3">
-              {upcomingEvents[0].description}
+              {upcomingEvents[0].title}
             </p>
             <div className="flex items-center justify-between">
               <Link 
-                href={`/events/${upcomingEvents[0].slug || upcomingEvents[0].id}`} 
+                href={`/events/${upcomingEvents[0].id}`} 
                 className="btn btn-primary btn-sm md:btn-md hover:btn-secondary transition-all duration-300 shadow-lg"
               >
                 جزئیات
@@ -261,7 +260,7 @@ export default function HomePage() {
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
                 </svg>
-                <span>{upcomingEvents[0].status === 'upcoming' ? 'آینده' : upcomingEvents[0].status === 'active' ? 'فعال' : 'برگزار شده'}</span>
+                <span>{"آینده"}</span>
               </div>
             </div>
           </div>
@@ -273,7 +272,7 @@ export default function HomePage() {
         {upcomingEvents.slice(1, 3).map((event, index) => (
           <div key={event.id} className="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 min-h-[140px] md:min-h-[150px] flex-1">
             <img
-              src={event.imageUrl || IMG}
+              src={event.image || IMG}
               alt={event.title}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
@@ -281,16 +280,16 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
             
             <div className="absolute top-3 right-3 bg-success text-success-content px-2 py-1 rounded-full text-xs font-semibold">
-              {event.status === 'active' ? 'فعال' : event.status === 'upcoming' ? 'آینده' : 'جدید'}
+              {"جدید"}
             </div>
             
             <div className="relative z-10 flex flex-col justify-end p-4 md:p-5 h-full text-white">
               <h3 className="text-sm md:text-lg font-bold mb-1">{event.title}</h3>
               <p className="opacity-90 text-xs md:text-sm mb-2 line-clamp-2">
-                {event.description}
+                {event.title}
               </p>
               <Link 
-                href={`/events/${event.slug || event.id}`} 
+                href={`/events/${event.id}`} 
                 className="btn btn-primary btn-xs md:btn-sm self-start hover:btn-secondary transition-colors duration-300"
               >
                 جزئیات
@@ -351,7 +350,7 @@ export default function HomePage() {
         >
           <figure className="relative overflow-hidden">
             <img
-              src={news.imageUrl || IMG}
+              src={news.image || IMG}
               alt={news.title}
               className="h-48 md:h-56 w-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
@@ -360,7 +359,7 @@ export default function HomePage() {
             
             {/* نشان تاریخ */}
             <div className="absolute top-3 right-3 bg-base-100/90 text-base-content px-2 py-1 rounded-lg text-xs font-semibold backdrop-blur-sm">
-              {new Date(news.publishedAt).toLocaleDateString('fa-IR', { 
+              {new Date(news.publish_date).toLocaleDateString('fa-IR', { 
                 month: 'long', 
                 day: 'numeric' 
               })}
@@ -371,7 +370,7 @@ export default function HomePage() {
               {news.title}
             </h3>
             <p className="text-xs md:text-sm opacity-70 leading-relaxed line-clamp-3 mb-4">
-              {news.description}
+              {news.title}
             </p>
             <div className="card-actions justify-between items-center">
               <div className="flex items-center gap-2 text-xs text-base-content/60">
@@ -379,10 +378,10 @@ export default function HomePage() {
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                   <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
                 </svg>
-                <span>{news.viewCount || 0} بازدید</span>
+                <span>{0} بازدید</span>
               </div>
               <Link 
-                href={`/news/${news.slug || news.id}`} 
+                href={`/news/${news.id}`} 
                 className="btn btn-outline btn-sm hover:btn-primary transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 مشاهده
@@ -404,3 +403,4 @@ export default function HomePage() {
     </div>
   );
 }
+

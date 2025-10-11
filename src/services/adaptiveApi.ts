@@ -11,8 +11,7 @@ import {
 } from './mockApi';
 
 // Check if we're in development mode and should use mock data
-const USE_MOCK_DATA = process.env.NODE_ENV === 'development' && 
-  process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false';
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 
 // Fallback helper - tries real API first, falls back to mock on error
 async function withFallback<T>(
@@ -21,22 +20,24 @@ async function withFallback<T>(
   useMock = USE_MOCK_DATA
 ): Promise<T> {
   if (useMock) {
-    console.log('🟡 Using mock data (development mode)');
+    console.log('🟡 Using mock data (forced via env variable)');
     return mockApiCall();
   }
 
   try {
-    console.log('🟢 Attempting real API call');
+    console.log('🟢 Attempting real API call to backend');
     const result = await realApiCall();
+    console.log('✅ Real API call successful');
     return result;
   } catch (error: any) {
-    console.warn('🔴 Real API failed, falling back to mock data:', error.message);
+    console.warn('🔴 Real API failed:', error.message);
     
     // Only fallback to mock in development or if it's a connection error
-    if (process.env.NODE_ENV === 'development' || 
+    if (process.env.NODE_ENV === 'development' && (
         error.statusCode === 0 || 
         error.message?.includes('Network Error') ||
-        error.message?.includes('timeout')) {
+        error.message?.includes('timeout') ||
+        error.message?.includes('Not Found'))) {
       
       console.log('🟡 Using mock data as fallback');
       return mockApiCall();
@@ -58,19 +59,10 @@ export const adaptiveNewsApi = {
   getById: async (id: number) => 
     withFallback(
       () => realNewsApi.getById(id),
-      () => mockNewsApi.getById(id)
-    ),
-
-  getBySlug: async (slug: string) => 
-    withFallback(
-      () => realNewsApi.getBySlug(slug),
-      () => mockNewsApi.getBySlug(slug)
-    ),
-
-  incrementView: async (id: number) => 
-    withFallback(
-      () => realNewsApi.incrementView(id),
-      () => mockNewsApi.incrementView(id)
+      async () => {
+        const result = await mockNewsApi.getById(id);
+        return result.data;
+      }
     ),
 };
 
@@ -85,33 +77,10 @@ export const adaptiveEventsApi = {
   getById: async (id: number) => 
     withFallback(
       () => realEventsApi.getById(id),
-      () => mockEventsApi.getById(id)
-    ),
-
-  getBySlug: async (slug: string) => 
-    withFallback(
-      () => realEventsApi.getBySlug(slug),
-      () => mockEventsApi.getBySlug(slug)
-    ),
-
-  getFeatured: async (params?: any) => 
-    withFallback(
-      () => realEventsApi.getFeatured(),
-      () => mockEventsApi.getFeatured()
-    ),
-
-  getUpcoming: async (params?: { limit?: number }) => {
-    const limit = params?.limit || 6;
-    return withFallback(
-      () => realEventsApi.getUpcoming(limit),
-      () => mockEventsApi.getUpcoming(limit)
-    );
-  },
-
-  incrementView: async (id: number) => 
-    withFallback(
-      () => realEventsApi.incrementView(id),
-      () => mockEventsApi.incrementView(id)
+      async () => {
+        const result = await mockEventsApi.getById(id);
+        return result.data;
+      }
     ),
 };
 
@@ -126,36 +95,10 @@ export const adaptiveEducationApi = {
   getById: async (id: number) => 
     withFallback(
       () => realEducationApi.getById(id),
-      () => mockEducationApi.getById(id)
-    ),
-
-  getBySlug: async (slug: string) => 
-    withFallback(
-      () => realEducationApi.getBySlug(slug),
-      () => mockEducationApi.getBySlug(slug)
-    ),
-
-  getFeatured: async (params?: { limit?: number }) => {
-    const limit = params?.limit || 6;
-    return withFallback(
-      () => realEducationApi.getFeatured(limit),
-      () => mockEducationApi.getFeatured(limit)
-    );
-  },
-
-  getByCategory: async (params?: { category: string; limit?: number }) => {
-    const { category, limit = 6 } = params || {};
-    if (!category) throw new Error('Category is required');
-    return withFallback(
-      () => realEducationApi.getByCategory(category, limit),
-      () => mockEducationApi.getByCategory(category, limit)
-    );
-  },
-
-  incrementView: async (id: number) => 
-    withFallback(
-      () => realEducationApi.incrementView(id),
-      () => mockEducationApi.incrementView(id)
+      async () => {
+        const result = await mockEducationApi.getById(id);
+        return result.data;
+      }
     ),
 };
 
