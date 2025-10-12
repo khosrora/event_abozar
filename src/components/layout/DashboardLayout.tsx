@@ -4,7 +4,7 @@ import { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { authApi } from '@/services/adaptiveApi';
+import useAuthStore from '@/store/useAuthStore';
 import { ROUTES } from '@/constants';
 
 interface DashboardLayoutProps {
@@ -28,6 +28,9 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  
+  // Use auth store for logout
+  const { logout } = useAuthStore();
 
   const menuItems: MenuItem[] = [
     {
@@ -63,23 +66,12 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     
   ];
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      // Clear storage regardless of API response
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('access_token');
-      sessionStorage.removeItem('refresh_token');
-      sessionStorage.removeItem('user');
-      
-      toast.success('با موفقیت خارج شدید');
-      router.push(ROUTES.LOGIN);
-    }
+  const handleLogout = () => {
+    // Use Zustand store logout which handles everything
+    logout();
+    
+    // Redirect to login page
+    router.push(ROUTES.LOGIN);
   };
 
   return (

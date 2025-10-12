@@ -120,19 +120,29 @@ const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        // Clear auth data
+        // Clear auth data from store
         set({
           user: null,
           token: null,
           isAuthenticated: false,
         });
         
-        // Clear browser storage too
+        // Clear all possible auth-related items from browser storage
         if (typeof window !== 'undefined') {
+          // Clear tokens and user data
           localStorage.removeItem('authToken');
-          sessionStorage.removeItem('authToken');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
+          
+          sessionStorage.removeItem('authToken');
+          sessionStorage.removeItem('access_token');
+          sessionStorage.removeItem('refresh_token');
           sessionStorage.removeItem('user');
+          
+          // Clear Zustand persisted state
+          localStorage.removeItem('auth-storage');
+          sessionStorage.removeItem('auth-storage');
         }
         
         toast.success('خروج با موفقیت انجام شد');
