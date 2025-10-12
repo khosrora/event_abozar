@@ -2,4 +2,5 @@
  * Export all layout components
  */
 
-export * from './DetailPageLayout';
+export { DetailPageLayout } from './DetailPageLayout';
+export { DashboardLayout } from './DashboardLayout';

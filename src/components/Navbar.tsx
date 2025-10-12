@@ -115,8 +115,13 @@ export default function Navbar() {
                 </li>
               ))}
               <li className="mt-3 pt-2 border-t border-base-200">
-                <Link href="/register" className="btn btn-primary btn-sm w-full justify-center">
-                  ثبت نام
+                <Link href="/register" className="btn btn-primary btn-sm w-full justify-center mb-1">
+                  ثبت در جشنواره
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="btn btn-outline btn-sm w-full justify-center">
+                  ورود / عضویت
                 </Link>
               </li>
             </ul>
@@ -157,9 +162,17 @@ export default function Navbar() {
           {/* Register CTA (desktop) */}
           <Link
             href="/register"
-            className="btn btn-primary hidden md:inline-flex"
+            className="btn btn-primary btn-sm md:btn-md hidden md:inline-flex"
           >
-            ثبت نام
+            ثبت در جشنواره
+          </Link>
+          
+          {/* Login/Signup (desktop) */}
+          <Link
+            href="/login"
+            className="btn btn-outline btn-sm md:btn-md hidden md:inline-flex"
+          >
+            ورود / عضویت
           </Link>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { 
   newsApi as realNewsApi, 
   eventsApi as realEventsApi, 
-  educationApi as realEducationApi 
+  educationApi as realEducationApi,
+  authApi as realAuthApi,
 } from './api';
 
 import { 
@@ -59,10 +60,7 @@ export const adaptiveNewsApi = {
   getById: async (id: number) => 
     withFallback(
       () => realNewsApi.getById(id),
-      async () => {
-        const result = await mockNewsApi.getById(id);
-        return result.data;
-      }
+      () => mockNewsApi.getById(id)
     ),
 };
 
@@ -77,10 +75,7 @@ export const adaptiveEventsApi = {
   getById: async (id: number) => 
     withFallback(
       () => realEventsApi.getById(id),
-      async () => {
-        const result = await mockEventsApi.getById(id);
-        return result.data;
-      }
+      () => mockEventsApi.getById(id)
     ),
 };
 
@@ -95,10 +90,7 @@ export const adaptiveEducationApi = {
   getById: async (id: number) => 
     withFallback(
       () => realEducationApi.getById(id),
-      async () => {
-        const result = await mockEducationApi.getById(id);
-        return result.data;
-      }
+      () => mockEducationApi.getById(id)
     ),
 };
 
@@ -106,3 +98,6 @@ export const adaptiveEducationApi = {
 export const newsApi = adaptiveNewsApi;
 export const eventsApi = adaptiveEventsApi;
 export const educationApi = adaptiveEducationApi;
+
+// Auth API doesn't need fallback - always use real API
+export const authApi = realAuthApi;

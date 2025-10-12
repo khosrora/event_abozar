@@ -3,416 +3,344 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
-import { festivalApi } from "@/services/api";
-import { province, cities } from "@/constants/cities";
-import { validateNationalId, validatePhoneNumber } from "@/utils/validation";
-import { FESTIVAL_FORMATS, FESTIVAL_TOPICS } from "@/constants";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import useAuthStore from "@/store/useAuthStore";
+import { validatePhoneNumber, validatePassword } from "@/utils/validation";
+import { testApiEndpoint, logDataShape } from "@/utils/api-debug";
+import { ROUTES } from "@/constants";
 
-type FormValues = {
+type RegisterFormValues = {
   fullName: string;
-  education: string;
-  fatherName: string;
-  gender: "male" | "female";
-  mediaName: string;
-  nationalId: string;
-  phoneNumber: string;
-  virtualNumber: string;
-  province: string;
-  city: string;
-  category: string;
-  topic: string;
-  specialSection: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
 };
 
-const educationOptions = [
-  "زیر دیپلم",
-  "دیپلم",
-  "کاردانی",
-  "کارشناسی",
-  "کارشناسی ارشد",
-  "دکتری",
-];
-
-const specialSections = [
-  { value: "progress_narrative", label: "روایت پیشرفت" },
-  { value: "field_narrative_12days", label: "روایت میدان در جنگ ۱۲ روزه" },
-];
-
 export default function RegisterPage() {
+  const router = useRouter();
+  const { register: registerUser, isLoading } = useAuthStore();
+  
   const {
     register,
     handleSubmit,
-    setValue,
     watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>();
-
-  const [educationQuery, setEducationQuery] = useState("");
-  const [showEducationList, setShowEducationList] = useState(false);
-
-  // 🔹 State for Province Search
-  const [provinceQuery, setProvinceQuery] = useState("");
-  const [showProvinceList, setShowProvinceList] = useState(false);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
-
-  // 🔹 State for City Search
-  const [cityQuery, setCityQuery] = useState("");
-  const [showCityList, setShowCityList] = useState(false);
-  const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    // Validation: check all required fields
-    if (!data.fullName || !data.fatherName || !data.nationalId || !data.gender || 
-        !data.education || !data.phoneNumber || !selectedProvinceId || !selectedCityId ||
-        !data.mediaName || !data.category || !data.topic) {
-      toast.error("لطفاً همه فیلدهای الزامی را پر کنید");
+    formState: { errors },
+  } = useForm<RegisterFormValues>();
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Get password value for comparison with confirmPassword
+  const password = watch("password");
+  
+  const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
+    // Validate phone number
+    if (!validatePhoneNumber(data.phone)) {
+      toast.error("شماره موبایل معتبر نیست");
       return;
     }
-
-    // Validate national ID using utility function
-    if (!validateNationalId(data.nationalId)) {
-      toast.error("کد ملی نامعتبر است");
+    
+    // Validate password match
+    if (data.password !== data.confirmPassword) {
+      toast.error("رمز عبور و تکرار آن مطابقت ندارند");
       return;
     }
-
-    // Validate phone number using utility function
-    if (!validatePhoneNumber(data.phoneNumber)) {
-      toast.error("شماره موبایل نامعتبر است");
+    
+    // Validate password complexity
+    if (!validatePassword(data.password)) {
+      toast.error("رمز عبور باید حداقل ۸ کاراکتر باشد");
       return;
     }
-
+    
+    // Check terms agreement
+    if (!data.agreeToTerms) {
+      toast.error("لطفاً قوانین و مقررات را مطالعه و تایید کنید");
+      return;
+    }
+    
+    // Ensure we're sending data with the exact field names expected by the API
+    const registerData = {
+      full_name: data.fullName,
+      phone: data.phone,
+      password: data.password,
+    };
+    
+    // Debug the exact data being sent
+    console.log('📤 Register form data being sent:', registerData);
+    
     try {
-      const requestData = {
-        full_name: data.fullName,
-        father_name: data.fatherName,
-        national_id: data.nationalId,
-        gender: data.gender,
-        education: data.education,
-        phone_number: data.phoneNumber,
-        virtual_number: data.virtualNumber || undefined,
-        province_id: selectedProvinceId!,
-        city_id: selectedCityId!,
-        media_name: data.mediaName,
-        festival_format: data.category,
-        festival_topic: data.topic,
-        special_section: data.specialSection || undefined,
-      };
-
-      await festivalApi.register(requestData);
-      toast.success("ثبت‌نام با موفقیت انجام شد ✅");
+      // Log data shape for debugging
+      logDataShape('Register Data', registerData);
       
-      // Reset form or redirect
-      window.location.href = "/";
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "خطا در ثبت‌نام. لطفاً دوباره تلاش کنید";
-      toast.error(errorMessage);
+      // First attempt: Test the API endpoint directly
+      const testResult = await testApiEndpoint('/account/register/', 'POST', registerData);
+      
+      if (testResult.success) {
+        console.log('Direct API test succeeded, proceeding with store registration');
+        
+        // Try with Zustand store if direct call succeeded
+        const success = await registerUser(registerData);
+        
+        if (success) {
+          router.push(ROUTES.DASHBOARD);
+        }
+      } else {
+        // Log detailed error from direct API test
+        console.error('Direct API test failed:', testResult);
+        
+        // Check common error patterns
+        if (testResult.status === 400) {
+          // Handle validation errors
+          const errorData = testResult.data as any;
+          if (errorData?.phone && errorData.phone.includes('already exists')) {
+            toast.error("این شماره موبایل قبلاً ثبت شده است");
+          } else {
+            // Show specific field errors
+            const fieldErrors = Object.entries(errorData || {})
+              .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+              .join('; ');
+            
+            toast.error(fieldErrors || "اطلاعات وارد شده نامعتبر است");
+          }
+        } else {
+          toast.error("خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.");
+        }
+      }
+    } catch (error) {
+      console.error('Registration process failed:', error);
+      toast.error("خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.");
     }
-  };
-
-  const handleEducationSelect = (value: string) => {
-    setEducationQuery(value);
-    setValue("education", value);
-    setShowEducationList(false);
-  };
-
-  // 🔸 Filtered Education List
-  const filteredEducation = educationOptions.filter((e) =>
-    e.toLowerCase().includes(educationQuery.toLowerCase())
-  );
-
-  // 🔸 Filter provinces based on search
-  const filteredProvinces = province.filter((p) =>
-    p.fields.name.toLowerCase().includes(provinceQuery.toLowerCase())
-  );
-
-  // 🔸 Filter cities based on search and selected province
-  const filteredCities = cities.filter(
-    (c) =>
-      selectedProvinceId &&
-      c.fields.province_id === selectedProvinceId &&
-      c.fields.name.toLowerCase().includes(cityQuery.toLowerCase())
-  );
-
-  const handleProvinceSelect = (id: number, name: string) => {
-    setProvinceQuery(name);
-    setValue("province", name);
-    setSelectedProvinceId(id);
-    setShowProvinceList(false);
-    // reset city when province changes
-    setCityQuery("");
-    setValue("city", "");
-    setSelectedCityId(null);
-  };
-
-  const handleCitySelect = (id: number, name: string) => {
-    setCityQuery(name);
-    setValue("city", name);
-    setSelectedCityId(id);
-    setShowCityList(false);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6 text-center">
-         ثبت نام جشنواره
-      </h1>
-
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        {/* نام و نام خانوادگی */}
-        <div className="form-control">
-          <label className="label">نام و نام خانوادگی:</label>
-          <input
-            {...register("fullName", { required: "وارد کردن نام و نام خانوادگی الزامی هست" })}
-            className="input input-bordered w-full text-right"
-          />
-          {errors.fullName && (
-            <p className="text-error text-sm">{errors.fullName.message}</p>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-base-100 to-secondary/10 px-4 py-8">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+            ثبت‌نام در سیستم
+          </h1>
+          <p className="text-base-content/70 text-sm md:text-base">
+            برای ایجاد حساب کاربری و دسترسی به داشبورد ثبت‌نام کنید
+          </p>
         </div>
 
-        <div className="form-control relative">
-          <label className="label">تحصیلات:</label>
-          <input
-            type="text"
-            value={educationQuery}
-            onChange={(e) => {
-              setEducationQuery(e.target.value);
-              setShowEducationList(true);
-            }}
-            onFocus={() => setShowEducationList(true)}
-            placeholder="جستجو یا انتخاب کنید..."
-            className="input input-bordered w-full text-right"
-          />
-          {showEducationList && (
-            <ul className="absolute z-10 w-full bg-white border rounded-lg max-h-40 overflow-y-auto shadow-md mt-1 text-right">
-              {filteredEducation.length > 0 ? (
-                filteredEducation.map((edu) => (
-                  <li
-                    key={edu}
-                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleEducationSelect(edu)}
+        {/* Form Card */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body p-6 md:p-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* Full Name */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">نام و نام خانوادگی</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="نام و نام خانوادگی خود را وارد کنید"
+                  className={`input input-bordered w-full ${
+                    errors.fullName ? "input-error" : ""
+                  }`}
+                  {...register("fullName", {
+                    required: "نام و نام خانوادگی الزامی است",
+                    minLength: {
+                      value: 3,
+                      message: "نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد",
+                    },
+                  })}
+                />
+                {errors.fullName && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.fullName.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Phone Number */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">شماره موبایل</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="09xxxxxxxxx"
+                  className={`input input-bordered w-full ${
+                    errors.phone ? "input-error" : ""
+                  }`}
+                  {...register("phone", {
+                    required: "شماره موبایل الزامی است",
+                    pattern: {
+                      value: /^09[0-9]{9}$/,
+                      message: "شماره موبایل معتبر نیست",
+                    },
+                  })}
+                  maxLength={11}
+                />
+                {errors.phone && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.phone.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">رمز عبور</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="رمز عبور خود را وارد کنید"
+                    className={`input input-bordered w-full pr-12 ${
+                      errors.password ? "input-error" : ""
+                    }`}
+                    {...register("password", {
+                      required: "رمز عبور الزامی است",
+                      minLength: {
+                        value: 8,
+                        message: "رمز عبور باید حداقل ۸ کاراکتر باشد",
+                      },
+                    })}
+                  />
+                  <button
+                    type="button"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    {edu}
-                  </li>
-                ))
-              ) : (
-                <li className="px-3 py-2 text-gray-400">یافت نشد</li>
-              )}
-            </ul>
-          )}
-          {errors.education && (
-            <p className="text-error text-sm mt-1">
-              {errors.education.message}
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.password.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">تکرار رمز عبور</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="رمز عبور خود را مجدداً وارد کنید"
+                    className={`input input-bordered w-full pr-12 ${
+                      errors.confirmPassword ? "input-error" : ""
+                    }`}
+                    {...register("confirmPassword", {
+                      required: "تکرار رمز عبور الزامی است",
+                      validate: (value) =>
+                        value === password || "رمز عبور و تکرار آن مطابقت ندارند",
+                    })}
+                  />
+                  <button
+                    type="button"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <label className="label">
+                    <span className="label-text-alt text-error">
+                      {errors.confirmPassword.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Terms and Conditions */}
+              <div className="form-control">
+                <label className="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    className={`checkbox checkbox-primary ${
+                      errors.agreeToTerms ? "checkbox-error" : ""
+                    }`}
+                    {...register("agreeToTerms", {
+                      required: "پذیرش قوانین و مقررات الزامی است",
+                    })}
+                  />
+                  <span className="label-text">
+                    <span>قوانین و مقررات را مطالعه کرده و می‌پذیرم</span>
+                    <Link href="/terms" className="text-primary mr-1 hover:underline">
+                      (مشاهده قوانین)
+                    </Link>
+                  </span>
+                </label>
+                {errors.agreeToTerms && (
+                  <label className="label pt-0">
+                    <span className="label-text-alt text-error">
+                      {errors.agreeToTerms.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="btn btn-primary w-full mt-6"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    در حال ثبت‌نام...
+                  </>
+                ) : (
+                  "ثبت‌نام"
+                )}
+              </button>
+            </form>
+
+            {/* Login Link */}
+            <div className="divider text-sm">یا</div>
+            <p className="text-center text-sm text-base-content/70">
+              قبلاً ثبت‌نام کرده‌اید؟{" "}
+              <Link href={ROUTES.LOGIN} className="link link-primary font-medium">
+                وارد شوید
+              </Link>
             </p>
-          )}
+          </div>
         </div>
 
-        {/* نام پدر */}
-        <div className="form-control">
-          <label className="label">نام پدر:</label>
-          <input
-            {...register("fatherName", { required: "نام پدر الزامی است" })}
-            className="input input-bordered w-full text-right"
-          />
+        {/* Back to Home */}
+        <div className="text-center mt-6">
+          <Link href={ROUTES.HOME} className="btn btn-ghost btn-sm">
+            بازگشت به صفحه اصلی
+          </Link>
         </div>
-
-        {/* جنسیت */}
-        <div className="form-control">
-          <label className="label">جنسیت:</label>
-          <select
-            {...register("gender", { required: "جنسیت را انتخاب کنید" })}
-            className="select select-bordered w-full text-right"
-          >
-            <option value="">انتخاب کنید</option>
-            <option value="male">مرد</option>
-            <option value="female">زن</option>
-          </select>
-        </div>
-
-        {/* نام رسانه */}
-        <div className="form-control">
-          <label className="label">نام رسانه:</label>
-          <input
-            {...register("mediaName", { required: "نام رسانه الزامی است" })}
-            className="input input-bordered w-full text-right"
-          />
-        </div>
-
-        {/* کد ملی */}
-        <div className="form-control">
-          <label className="label">کد ملی:</label>
-          <input
-            {...register("nationalId", { required: "وارد کردن کد ملی الزامی است" })}
-            className="input input-bordered w-full text-right"
-          />
-        </div>
-
-        {/* شماره تماس */}
-        <div className="form-control">
-          <label className="label">شماره تماس:</label>
-          <input
-            {...register("phoneNumber", { required: "وارد کردن نشکاره تماس الزامی است" })}
-            className="input input-bordered w-full text-right"
-          />
-        </div>
-
-        {/* شماره مجازی */}
-        <div className="form-control">
-          <label className="label">شماره مجازی:</label>
-          <input
-            {...register("virtualNumber")}
-            className="input input-bordered w-full text-right"
-          />
-        </div>
-
-        {/* 🔸 Province Search */}
-        <div className="form-control relative">
-          <label className="label">استان: <span className="text-error">*</span></label>
-          <input
-            type="text"
-            value={provinceQuery}
-            onChange={(e) => {
-              setProvinceQuery(e.target.value);
-              setShowProvinceList(true);
-            }}
-            onFocus={() => setShowProvinceList(true)}
-            placeholder="جستجو کنید..."
-            className="input input-bordered w-full text-right"
-          />
-          {showProvinceList && (
-            <ul className="absolute z-10 w-full bg-white border rounded-lg max-h-40 overflow-y-auto shadow-md mt-1 text-right">
-              {filteredProvinces.length > 0 ? (
-                filteredProvinces.map((p) => (
-                  <li
-                    key={p.pk}
-                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleProvinceSelect(p.pk, p.fields.name)}
-                  >
-                    {p.fields.name}
-                  </li>
-                ))
-              ) : (
-                <li className="px-3 py-2 text-gray-400">یافت نشد</li>
-              )}
-            </ul>
-          )}
-          {errors.province && (
-            <p className="text-error text-sm mt-1">{errors.province.message}</p>
-          )}
-        </div>
-
-        {/* 🔸 City Search */}
-        <div className="form-control relative">
-          <label className="label">شهر: <span className="text-error">*</span></label>
-          <input
-            type="text"
-            value={cityQuery}
-            onChange={(e) => {
-              setCityQuery(e.target.value);
-              setShowCityList(true);
-            }}
-            onFocus={() => setShowCityList(true)}
-            placeholder={selectedProvinceId ? "جستجو کنید..." : "ابتدا استان را انتخاب کنید"}
-            className="input input-bordered w-full text-right"
-            disabled={!selectedProvinceId}
-          />
-          {showCityList && selectedProvinceId && (
-            <ul className="absolute z-10 w-full bg-white border rounded-lg max-h-40 overflow-y-auto shadow-md mt-1 text-right">
-              {filteredCities.length > 0 ? (
-                filteredCities.map((c) => (
-                  <li
-                    key={c.pk}
-                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleCitySelect(c.pk, c.fields.name)}
-                  >
-                    {c.fields.name}
-                  </li>
-                ))
-              ) : (
-                <li className="px-3 py-2 text-gray-400">یافت نشد</li>
-              )}
-            </ul>
-          )}
-          {errors.city && (
-            <p className="text-error text-sm mt-1">{errors.city.message}</p>
-          )}
-        </div>
-
-        {/* قالب جشنواره */}
-        <div className="form-control">
-          <label className="label">قالب‌های جشنواره: <span className="text-error">*</span></label>
-          <select
-            {...register("category", { required: "انتخاب قالب جشنواره الزامی است" })}
-            className="select select-bordered w-full text-right"
-          >
-            <option value="">انتخاب کنید</option>
-            {FESTIVAL_FORMATS.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          {errors.category && (
-            <p className="text-error text-sm mt-1">{errors.category.message}</p>
-          )}
-        </div>
-
-        {/* محور جشنواره */}
-        <div className="form-control">
-          <label className="label">محورهای جشنواره: <span className="text-error">*</span></label>
-          <select
-            {...register("topic", { required: "محوریت چشنواره باید انتخاب کنید" })}
-            className="select select-bordered w-full text-right mt-1"
-          >
-            <option value="">انتخاب کنید</option>
-            {FESTIVAL_TOPICS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-          {errors.topic && (
-            <p className="text-error text-sm mt-1">{errors.topic.message}</p>
-          )}
-        </div>
-
-        {/* بخش ویژه */}
-        <div className="form-control md:col-span-2">
-          <label className="label">بخش‌های ویژه (اختیاری):</label>
-          <select
-            {...register("specialSection")}
-            className="select select-bordered w-full text-right"
-          >
-            <option value="">انتخاب کنید (اختیاری)</option>
-            {specialSections.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* دکمه */}
-        <div className="md:col-span-2">
-          <button 
-            type="submit" 
-            className="btn btn-primary w-full mt-4"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="loading loading-spinner"></span>
-                در حال ارسال...
-              </>
-            ) : (
-              "ارسال فرم"
-            )}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

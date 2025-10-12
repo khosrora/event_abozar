@@ -51,6 +51,16 @@ export function validateEmail(email: string): boolean {
 }
 
 /**
+ * Validate password strength
+ * @param password - Password to validate
+ * @returns Boolean indicating if password meets requirements
+ */
+export function validatePassword(password: string): boolean {
+  // At least 8 characters
+  return password.length >= 8;
+}
+
+/**
  * Format phone number for display
  * @param phoneNumber - Phone number to format
  * @returns Formatted phone number (e.g., "0912 345 6789")

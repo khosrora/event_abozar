@@ -1,6 +1,8 @@
 {
-  "/(public)/page": "app/(public)/page.js",
-  "/(public)/news/page": "app/(public)/news/page.js",
-  "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(public)/about/page": "app/(public)/about/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public)/login/page": "app/(public)/login/page.js",
+  "/(public)/signup/page": "app/(public)/signup/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/dashboard/profile/page": "app/(dashboard)/dashboard/profile/page.js",
+  "/(dashboard)/dashboard/registrations/page": "app/(dashboard)/dashboard/registrations/page.js"
 }

@@ -19,7 +19,44 @@ import type {
   SiteStats,
   FestivalRegistrationData,
   FestivalRegistrationResponse,
+  SignupData,
+  SignupResponse,
+  LoginData,
+  LoginResponse,
+  User,
 } from '@/types/api';
+
+// Authentication API
+export const authApi = {
+  signup: async (data: SignupData): Promise<SignupResponse> => {
+    // Log the exact data being sent for debugging
+    console.log('🔐 Signup API call with data:', data);
+    const response = await apiClient.post<SignupResponse>('/account/register/', data);
+    console.log('✅ Signup API response:', response);
+    return response;
+  },
+
+  login: async (data: LoginData): Promise<LoginResponse> => {
+    console.log('🔐 Login API call with data:', data);
+    const response = await apiClient.post<LoginResponse>('/account/login/', data);
+    console.log('✅ Login API response:', response);
+    return response;
+  },
+
+  logout: async (): Promise<void> => {
+    await apiClient.post<void>('/auth/logout/', {});
+  },
+
+  getProfile: async (): Promise<User> => {
+    const response = await apiClient.get<User>('/auth/profile/');
+    return response;
+  },
+
+  refreshToken: async (refresh: string): Promise<{ access: string }> => {
+    const response = await apiClient.post<{ access: string }>('/auth/refresh/', { refresh });
+    return response;
+  },
+};
 
 // News API
 export const newsApi = {

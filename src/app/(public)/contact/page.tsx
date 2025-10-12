@@ -1,26 +1,45 @@
 "use client";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-
-type ContactFormValues = {
-  name: string;
-  phone: string;
-  email: string;
-  message: string;
-};
+import { useState } from "react";
+import { toast } from "sonner";
+import { contactService, ContactFormData } from "@/services/contactService";
+import { validateEmail, validatePhoneNumber } from "@/utils/validation";
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<ContactFormValues>();
+  } = useForm<ContactFormData>();
 
-  const onSubmit: SubmitHandler<ContactFormValues> = (data) => {
-    console.log("Contact Form Data:", data);
-    alert("پیام شما با موفقیت ارسال شد ✅");
-    reset();
+  const onSubmit: SubmitHandler<ContactFormData> = async (data) => {
+    // Validate email
+    if (!validateEmail(data.email)) {
+      toast.error("ایمیل معتبر نیست");
+      return;
+    }
+
+    // Validate phone number
+    if (!validatePhoneNumber(data.phone)) {
+      toast.error("شماره موبایل معتبر نیست");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await contactService.sendContactForm(data);
+      toast.success("پیام شما با موفقیت ارسال شد");
+      reset();
+    } catch (error: any) {
+      toast.error(error.message || "خطا در ارسال پیام. لطفا دوباره تلاش کنید");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,19 +49,17 @@ export default function ContactPage() {
       {/* Contact Form */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Name */}
+              {/* Name */}
           <div className="form-control w-full">
             <label className="label">نام و نام خانوادگی:</label>
             <input
-              {...register("name", { required: "وارد کردن نام الزامی است" })}
+              {...register("full_name", { required: "وارد کردن نام الزامی است" })}
               className="input input-bordered w-full text-right"
             />
-            {errors.name && (
-              <p className="text-error text-sm">{errors.name.message}</p>
+            {errors.full_name && (
+              <p className="text-error text-sm">{errors.full_name.message}</p>
             )}
-          </div>
-
-          {/* Phone */}
+          </div>          {/* Phone */}
           <div className="form-control w-full">
             <label className="label">شماره تماس:</label>
             <input
@@ -82,8 +99,19 @@ export default function ContactPage() {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="btn btn-primary w-full mt-2">
-            ارسال پیام
+          <button 
+            type="submit" 
+            className="btn btn-primary w-full mt-2"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                در حال ارسال...
+              </>
+            ) : (
+              "ارسال پیام"
+            )}
           </button>
         </form>
 

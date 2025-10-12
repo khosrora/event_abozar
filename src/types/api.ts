@@ -6,6 +6,38 @@ export interface ApiResponse<T = any> {
   statusCode?: number;
 }
 
+// Authentication Types
+export interface SignupData {
+  full_name: string;  // Single full name field
+  phone: string;      // Changed from mobile to phone
+  password: string;
+}
+
+export interface LoginData {
+  phone: string; // Updated to match API requirements
+  password: string;
+}
+
+export interface User {
+  id: number;
+  first_name?: string;  // Make optional for backward compatibility
+  last_name?: string;   // Make optional for backward compatibility
+  full_name?: string;   // Add full_name support
+  mobile?: string;      // Keep for backward compatibility
+  phone?: string;       // Add phone support
+  email?: string;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  access: string;
+  refresh: string;
+  user: User;
+}
+
+export type SignupResponse = AuthResponse;
+export type LoginResponse = AuthResponse;
+
 // Custom Backend Pagination (actual structure from backend)
 export interface BackendPaginatedResponse<T> {
   links: {

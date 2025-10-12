@@ -67,22 +67,33 @@ export const ROUTES = {
   NEWS: '/news',
   EVENTS: '/events',
   EDUCATION: '/education',
-  REGISTER: '/register',
+  REGISTER: '/register', // ثبت در جشنواره ابوذر
   CONTACT: '/contact',
   ABOUT: '/about',
+  LOGIN: '/login', // ورود به حساب کاربری (برای داشبورد)
+  SIGNUP: '/signup', // عضویت (ایجاد حساب کاربری)
+  DASHBOARD: '/dashboard', // پنل کاربری
 } as const;
 
 // Toast messages
 export const TOAST_MESSAGES = {
-  SUCCESS: {
-    REGISTRATION: 'ثبت نام با موفقیت انجام شد',
-    CONTACT: 'پیام شما با موفقیت ارسال شد',
-    COPIED: 'لینک کپی شد',
+  SUCCESS: 'عملیات با موفقیت انجام شد',
+  ERROR: 'خطایی رخ داد. لطفا دوباره تلاش کنید',
+  REGISTRATION: {
+    SUCCESS: 'ثبت‌نام در جشنواره با موفقیت انجام شد',
   },
-  ERROR: {
-    GENERIC: 'خطایی رخ داد. لطفا دوباره تلاش کنید',
-    NETWORK: 'خطا در برقراری ارتباط با سرور',
-    NOT_FOUND: 'محتوا یافت نشد',
-    VALIDATION: 'لطفا تمام فیلدها را به درستی پر کنید',
+  SIGNUP: {
+    SUCCESS: 'حساب کاربری شما با موفقیت ایجاد شد',
   },
+  LOGIN: {
+    SUCCESS: 'خوش آمدید!',
+    ERROR: 'نام کاربری یا رمز عبور اشتباه است',
+  },
+  CONTACT: {
+    SUCCESS: 'پیام شما با موفقیت ارسال شد',
+  },
+  COPIED: 'لینک کپی شد',
+  NETWORK_ERROR: 'خطا در برقراری ارتباط با سرور',
+  NOT_FOUND: 'محتوا یافت نشد',
+  VALIDATION_ERROR: 'لطفا تمام فیلدها را به درستی پر کنید',
 } as const;
