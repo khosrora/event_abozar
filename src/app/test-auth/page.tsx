@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants';
 
 export default function TestAuthPage() {
-  const { user, token, isAuthenticated, logout } = useAuthStore();
+  const { user, token, isAuthenticated, isHydrated, logout } = useAuthStore();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -17,8 +17,8 @@ export default function TestAuthPage() {
   };
 
   useEffect(() => {
-    console.log('Auth State:', { user, token, isAuthenticated });
-  }, [user, token, isAuthenticated]);
+    console.log('Auth State:', { user, token, isAuthenticated, isHydrated });
+  }, [user, token, isAuthenticated, isHydrated]);
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
@@ -29,6 +29,7 @@ export default function TestAuthPage() {
           <h2 className="card-title">Current Auth State</h2>
           
           <div className="space-y-2">
+            <p><strong>Is Hydrated:</strong> {isHydrated ? '✅ Yes' : '⏳ Loading...'}</p>
             <p><strong>Is Authenticated:</strong> {isAuthenticated ? '✅ Yes' : '❌ No'}</p>
             <p><strong>Has Token:</strong> {token ? '✅ Yes' : '❌ No'}</p>
             <p><strong>User:</strong> {user?.full_name || 'None'}</p>

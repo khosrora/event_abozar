@@ -9,12 +9,14 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isHydrated: boolean;  // Track if state has been restored from storage
   
   // Actions
   login: (data: LoginData) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => boolean;
+  setHydrated: (hydrated: boolean) => void;
 }
 
 interface RegisterData {
@@ -31,6 +33,9 @@ const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      isHydrated: false,
+
+      setHydrated: (hydrated: boolean) => set({ isHydrated: hydrated }),
 
       login: async (data: LoginData) => {
         set({ isLoading: true });
@@ -160,6 +165,17 @@ const useAuthStore = create<AuthState>()(
         token: state.token, 
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // This is called after the state is restored from storage
+        if (state) {
+          state.setHydrated(true);
+          console.log('✅ Auth state hydrated from storage:', {
+            hasUser: !!state.user,
+            hasToken: !!state.token,
+            isAuthenticated: state.isAuthenticated
+          });
+        }
+      },
     }
   )
 );

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { redirect } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import useAuthStore from '@/store/useAuthStore';
 import { PageLoading } from '@/components/ui';
 
@@ -12,29 +12,45 @@ interface AuthGuardProps {
 /**
  * AuthGuard - Protects routes that require authentication
  * Redirects to login page if user is not authenticated
+ * Waits for Zustand to hydrate state from localStorage before checking auth
  */
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthenticated, token, isLoading } = useAuthStore();
+  const router = useRouter();
+  const { isAuthenticated, token, isHydrated, setHydrated } = useAuthStore();
+  const [forceHydrated, setForceHydrated] = useState(false);
   
-  // Check authentication status on component mount
+  // Fallback: Force hydration after 1 second if it hasn't happened
   useEffect(() => {
-    // If not authenticated and not loading, redirect to login
-    if (!isAuthenticated && !token && !isLoading) {
-      redirect('/login');
-    }
-  }, [isAuthenticated, token, isLoading]);
+    const timer = setTimeout(() => {
+      if (!isHydrated) {
+        console.warn('⚠️ Hydration timeout, forcing hydrated state');
+        setHydrated(true);
+        setForceHydrated(true);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [isHydrated, setHydrated]);
   
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Check authentication after hydration is complete
+  useEffect(() => {
+    // Only redirect if we've finished hydrating AND user is not authenticated
+    if ((isHydrated || forceHydrated) && !isAuthenticated && !token) {
+      console.log('🔒 Not authenticated after hydration, redirecting to login...');
+      router.push('/login');
+    }
+  }, [isHydrated, forceHydrated, isAuthenticated, token, router]);
+  
+  // Show loading while waiting for hydration
+  if (!isHydrated && !forceHydrated) {
     return <PageLoading />;
   }
   
-  // If authenticated or has token, render children
-  if (isAuthenticated || token) {
-    return <>{children}</>;
+  // If not authenticated after hydration, show loading while redirecting
+  if (!isAuthenticated && !token) {
+    return <PageLoading />;
   }
   
-  // This return is actually never reached because redirect() throws an error
-  // But we include it for TypeScript completeness
-  return null;
+  // Render children if authenticated
+  return <>{children}</>;
 }
