@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import useAuthStore from "@/store/useAuthStore";
 import { validatePhoneNumber, validatePassword } from "@/utils/validation";
-import { testApiEndpoint, logDataShape } from "@/utils/api-debug";
 import { ROUTES } from "@/constants";
 
 type RegisterFormValues = {
@@ -67,49 +66,12 @@ export default function RegisterPage() {
       password: data.password,
     };
     
-    // Debug the exact data being sent
-    console.log('📤 Register form data being sent:', registerData);
-    
     try {
-      // Log data shape for debugging
-      logDataShape('Register Data', registerData);
-      
-      // First attempt: Test the API endpoint directly
-      const testResult = await testApiEndpoint('/account/register/', 'POST', registerData);
-      
-      if (testResult.success) {
-        console.log('Direct API test succeeded, proceeding with store registration');
-        
-        // Try with Zustand store if direct call succeeded
-        const success = await registerUser(registerData);
-        
-        if (success) {
-          router.push(ROUTES.DASHBOARD);
-        }
-      } else {
-        // Log detailed error from direct API test
-        console.error('Direct API test failed:', testResult);
-        
-        // Check common error patterns
-        if (testResult.status === 400) {
-          // Handle validation errors
-          const errorData = testResult.data as any;
-          if (errorData?.phone && errorData.phone.includes('already exists')) {
-            toast.error("این شماره موبایل قبلاً ثبت شده است");
-          } else {
-            // Show specific field errors
-            const fieldErrors = Object.entries(errorData || {})
-              .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
-              .join('; ');
-            
-            toast.error(fieldErrors || "اطلاعات وارد شده نامعتبر است");
-          }
-        } else {
-          toast.error("خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.");
-        }
+      const success = await registerUser(registerData);
+      if (success) {
+        router.push(ROUTES.DASHBOARD);
       }
     } catch (error) {
-      console.error('Registration process failed:', error);
       toast.error("خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.");
     }
   };

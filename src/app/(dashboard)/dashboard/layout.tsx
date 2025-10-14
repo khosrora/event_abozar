@@ -9,8 +9,16 @@ import type { User } from '@/types/api';
 
 const DEMO_USER: User = {
   id: 0,
+  fullName: 'کاربر نمونه',
   full_name: 'کاربر نمونه',
   phone: '09123456789',
+  is_active: true,
+  is_staff: false,
+  is_superuser: false,
+  last_login: new Date().toISOString(),
+  password: '',
+  groups: [],
+  user_permissions: [],
   email: 'demo@example.com',
   created_at: new Date().toISOString(),
 };
@@ -20,11 +28,8 @@ interface DashboardSectionLayoutProps {
 }
 
 export default function DashboardSectionLayout({ children }: DashboardSectionLayoutProps) {
-  // Use our auth store instead of local state
   const { user: storeUser, isAuthenticated } = useAuthStore();
   
-  // Use store user if available, otherwise fallback to demo user
-  // Only in development - in production, AuthGuard would redirect
   const resolvedUser = useMemo(
     () => isAuthenticated && storeUser ? storeUser : DEMO_USER, 
     [isAuthenticated, storeUser]

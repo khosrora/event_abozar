@@ -18,12 +18,12 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const { isAuthenticated, token, isHydrated, setHydrated } = useAuthStore();
   const [forceHydrated, setForceHydrated] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
   
   // Fallback: Force hydration after 1 second if it hasn't happened
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isHydrated) {
-        console.warn('⚠️ Hydration timeout, forcing hydrated state');
         setHydrated(true);
         setForceHydrated(true);
       }
@@ -34,12 +34,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   
   // Check authentication after hydration is complete
   useEffect(() => {
-    // Only redirect if we've finished hydrating AND user is not authenticated
-    if ((isHydrated || forceHydrated) && !isAuthenticated && !token) {
-      console.log('🔒 Not authenticated after hydration, redirecting to login...');
-      router.push('/login');
+    if ((isHydrated || forceHydrated) && !isAuthenticated && !token && !hasRedirected) {
+      setHasRedirected(true);
+      router.replace('/login');
     }
-  }, [isHydrated, forceHydrated, isAuthenticated, token, router]);
+  }, [isHydrated, forceHydrated, isAuthenticated, token, hasRedirected, router]);
   
   // Show loading while waiting for hydration
   if (!isHydrated && !forceHydrated) {

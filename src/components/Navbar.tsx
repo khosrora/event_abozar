@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import useAuthStore from "@/store/useAuthStore";
 
 /**
  * DaisyUI‑first, RTL‑friendly Navbar
@@ -77,6 +78,8 @@ function ActiveLink({
 }
 
 export default function Navbar() {
+  const { isAuthenticated, user } = useAuthStore();
+  
   return (
     <header dir="rtl" className="sticky top-0 z-50">
       <div className="navbar mx-auto w-full  bg-base-100/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-base-100/60 md:px-6 lg:px-8 shadow-sm">
@@ -115,15 +118,26 @@ export default function Navbar() {
                 </li>
               ))}
               <li className="mt-3 pt-2 border-t border-base-200">
-                <Link href="/register" className="btn btn-primary btn-sm w-full justify-center mb-1">
-                  ثبت در جشنواره
+                <Link href="/dashboard/festival-registration/new" className="btn btn-primary btn-sm w-full justify-center mb-1">
+                  ثبت‌نام در جشنواره
                 </Link>
               </li>
-              <li>
-                <Link href="/login" className="btn btn-outline btn-sm w-full justify-center">
-                  ورود / عضویت
-                </Link>
-              </li>
+              {isAuthenticated ? (
+                <li>
+                  <Link href="/dashboard" className="btn btn-outline btn-sm w-full justify-center">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    داشبورد
+                  </Link>
+                </li>
+              ) : (
+                <li>
+                  <Link href="/login" className="btn btn-outline btn-sm w-full justify-center">
+                    ورود / عضویت
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -161,19 +175,31 @@ export default function Navbar() {
         <div className="navbar-end gap-2">
           {/* Register CTA (desktop) */}
           <Link
-            href="/register"
+            href="/dashboard/festival-registration/new"
             className="btn btn-primary btn-sm md:btn-md hidden md:inline-flex"
           >
-            ثبت در جشنواره
+            ثبت‌نام در جشنواره
           </Link>
           
-          {/* Login/Signup (desktop) */}
-          <Link
-            href="/login"
-            className="btn btn-outline btn-sm md:btn-md hidden md:inline-flex"
-          >
-            ورود / عضویت
-          </Link>
+          {/* Login/Signup or Dashboard (desktop) */}
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="btn btn-outline btn-sm md:btn-md hidden md:inline-flex gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              داشبورد
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn btn-outline btn-sm md:btn-md hidden md:inline-flex"
+            >
+              ورود / عضویت
+            </Link>
+          )}
         </div>
       </div>
     </header>

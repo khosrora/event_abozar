@@ -16,22 +16,49 @@ export const PAGINATION = {
   DEFAULT_PAGE: 1,
 } as const;
 
-// Festival format options
+// Routes
+export const ROUTES = {
+  HOME: '/',
+  ABOUT: '/about',
+  CONTACT: '/contact',
+  NEWS: '/news',
+  EVENTS: '/events',
+  EDUCATION: '/education',
+  REGISTER: '/register',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  DASHBOARD: '/dashboard',
+  DASHBOARD_PROFILE: '/dashboard/profile',
+  DASHBOARD_REGISTRATIONS: '/dashboard/registrations',
+  DASHBOARD_FESTIVAL_REGISTRATION: '/dashboard/festival-registration',
+} as const;
+
 export const FESTIVAL_FORMATS = [
   { value: 'news_report', label: 'گزارش خبری' },
   { value: 'interview', label: 'مصاحبه' },
-  { value: 'documentary', label: 'مستند' },
-  { value: 'short_film', label: 'فیلم کوتاه' },
+  { value: 'article', label: 'یادداشت و سرمقاله' },
+  { value: 'headline', label: 'تیتر' },
+  { value: 'infographic', label: 'اینفوگرافی' },
+  { value: 'motion_graphic', label: 'موشن گرافی' },
   { value: 'photo', label: 'عکس' },
+  { value: 'video_clip', label: 'کلیپ و گزارش ویدیویی' },
+  { value: 'documentary', label: 'مستند' },
+  { value: 'podcast', label: 'پادکست' },
 ] as const;
 
-// Festival topic options
+
 export const FESTIVAL_TOPICS = [
-  { value: 'year_slogan', label: 'شعار سال' },
+  { value: 'year_slogan', label: 'شعار سال' }, 
   { value: 'jihad_explanation', label: 'جهاد تبیین' },
-  { value: 'resistance', label: 'مقاومت' },
-  { value: 'islamic_awakening', label: 'بیداری اسلامی' },
-  { value: 'media_ethics', label: 'اخلاق رسانه‌ای' },
+  { value: 'media_industry', label: 'پیوند رسانه و صنعت' },
+  { value: 'social_harms', label: 'مقابله با آسیب‌های اجتماعی' },
+  { value: 'revolution_achievements', label: 'دستاوردهای انقلاب اسلامی' },
+  { value: 'basij', label: 'بسیج و حوزه‌های اقدام' },
+  { value: 'hope_joy', label: 'امید و نشاط آفرینی' },
+  { value: 'family', label: 'خانواده، جامعه و فرزندآوری' },
+  { value: 'lifestyle', label: 'سبک زندگی ایرانی اسلامی' },
+  { value: 'sacrifice', label: 'ایثار و شهادت' },
+  { value: 'saving', label: 'صرفه‌جویی در مصرف آب و برق' },
 ] as const;
 
 // Education levels
@@ -61,39 +88,20 @@ export const API_ENDPOINTS = {
   },
 } as const;
 
-// Routes
-export const ROUTES = {
-  HOME: '/',
-  NEWS: '/news',
-  EVENTS: '/events',
-  EDUCATION: '/education',
-  REGISTER: '/register', // ثبت در جشنواره ابوذر
-  CONTACT: '/contact',
-  ABOUT: '/about',
-  LOGIN: '/login', // ورود به حساب کاربری (برای داشبورد)
-  SIGNUP: '/signup', // عضویت (ایجاد حساب کاربری)
-  DASHBOARD: '/dashboard', // پنل کاربری
-} as const;
-
 // Toast messages
 export const TOAST_MESSAGES = {
   SUCCESS: 'عملیات با موفقیت انجام شد',
   ERROR: 'خطایی رخ داد. لطفا دوباره تلاش کنید',
   REGISTRATION: {
     SUCCESS: 'ثبت‌نام در جشنواره با موفقیت انجام شد',
-  },
-  SIGNUP: {
-    SUCCESS: 'حساب کاربری شما با موفقیت ایجاد شد',
+    ERROR: 'خطا در ثبت‌نام. لطفا دوباره تلاش کنید',
   },
   LOGIN: {
-    SUCCESS: 'خوش آمدید!',
+    SUCCESS: 'ورود با موفقیت انجام شد',
     ERROR: 'نام کاربری یا رمز عبور اشتباه است',
   },
-  CONTACT: {
-    SUCCESS: 'پیام شما با موفقیت ارسال شد',
+  SIGNUP: {
+    SUCCESS: 'ثبت‌نام با موفقیت انجام شد',
+    ERROR: 'خطا در ثبت‌نام. لطفا دوباره تلاش کنید',
   },
-  COPIED: 'لینک کپی شد',
-  NETWORK_ERROR: 'خطا در برقراری ارتباط با سرور',
-  NOT_FOUND: 'محتوا یافت نشد',
-  VALIDATION_ERROR: 'لطفا تمام فیلدها را به درستی پر کنید',
 } as const;

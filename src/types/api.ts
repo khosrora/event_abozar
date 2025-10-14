@@ -20,19 +20,34 @@ export interface LoginData {
 
 export interface User {
   id: number;
-  first_name?: string;  // Make optional for backward compatibility
-  last_name?: string;   // Make optional for backward compatibility
-  full_name?: string;   // Add full_name support
-  mobile?: string;      // Keep for backward compatibility
-  phone?: string;       // Add phone support
+  fullName: string;
+  phone: string;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  last_login: string;
+  password: string;
+  groups: number[];
+  user_permissions: number[];
+  // Keep old fields for backward compatibility
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  mobile?: string;
   email?: string;
-  created_at: string;
+  created_at?: string;
 }
 
 export interface AuthResponse {
-  access: string;
-  refresh: string;
+  message?: string;
   user: User;
+  tokens?: {
+    access: string;
+    refresh: string;
+  };
+  // Legacy fields for backward compatibility
+  access?: string;
+  refresh?: string;
 }
 
 export type SignupResponse = AuthResponse;
@@ -158,6 +173,85 @@ export interface FestivalRegistrationData {
   special_section?: string;
 }
 
+// Province and City Types
+export interface Province {
+  id: number;
+  name: string;
+}
+
+export interface City {
+  id: number;
+  name: string;
+  province_id?: number;
+}
+
+export type Gender = 'male' | 'female';
+
+export type FestivalFormat = 
+  | 'news_report'
+  | 'interview'
+  | 'article'
+  | 'headline'
+  | 'infographic'
+  | 'motion_graphic'
+  | 'photo'
+  | 'video_clip'
+  | 'documentary'
+  | 'podcast';
+
+export type FestivalTopic = 
+  | 'year_slogan'
+  | 'jihad_explanation'
+  | 'media_industry'
+  | 'social_harms'
+  | 'revolution_achievements'
+  | 'basij'
+  | 'hope_joy'
+  | 'family'
+  | 'lifestyle'
+  | 'sacrifice'
+  | 'saving';
+
+export type SpecialSection = 
+  | 'progress_narrative'
+  | 'field_narrative_12days';
+
+// Festival Registration (short version for list)
+export interface FestivalRegistrationListItem {
+  id: number;
+  full_name: string;
+  gender: Gender;
+  phone_number: string;
+  province: Province;
+  city: City;
+  media_name: string;
+  festival_format: FestivalFormat;
+  festival_topic: FestivalTopic;
+  special_section: SpecialSection;
+  created_at: string;
+}
+
+// Festival Registration Detail (full version)
+export interface FestivalRegistrationDetail {
+  id: number;
+  full_name: string;
+  father_name: string;
+  national_id: string;
+  gender: Gender;
+  education: string;
+  phone_number: string;
+  virtual_number: string;
+  province: Province;
+  city: City;
+  media_name: string;
+  festival_format: FestivalFormat;
+  festival_topic: FestivalTopic;
+  special_section: SpecialSection;
+  created_at: string;
+  updated_at: string;
+}
+
+// Keep old type for backward compatibility
 export interface FestivalRegistration {
   id: number;
   full_name: string;
@@ -176,19 +270,6 @@ export interface FestivalRegistration {
 }
 
 export type FestivalRegistrationResponse = FestivalRegistration;
-
-// Province and City Types
-export interface Province {
-  id: number;
-  name: string;
-}
-
-export interface City {
-  id: number;
-  name: string;
-  province_id: number;
-}
-
 // Legacy Registration Types (for backward compatibility)
 export interface RegistrationData {
   fullName: string;
@@ -265,6 +346,46 @@ export interface EventFilters extends BaseFilters {
   priceMax?: number;
   tags?: string[];
 }
+
+// Dashboard Statistics
+export interface DashboardStatistics {
+  my_registrations_count: number;
+  my_works_count: number;
+  total_content_count: number;
+}
+
+// Work/Content Types
+export interface Work {
+  id: number;
+  title: string;
+  description: string;
+  file_url: string;
+  registration_name: string;
+  media_name: string;
+  festival_format: string;
+  festival_topic: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateWorkData {
+  festival_registration: number;
+  title: string;
+  description: string;
+  file: File;
+}
+
+export interface UpdateWorkData {
+  title?: string;
+  description?: string;
+  file?: File;
+}
+
+export interface UpdateUserProfile {
+  fullName: string;
+  // phone is readonly - cannot be changed
+}
+
 
 export interface EducationFilters extends BaseFilters {
   level?: string;

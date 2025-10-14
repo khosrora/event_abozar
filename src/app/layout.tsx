@@ -2,7 +2,6 @@ import { iransans , kalameh } from "@/lib/local_fonts";
 import type { Metadata } from "next";
 import "./globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import DevelopmentBanner from "@/components/DevelopmentBanner";
 import { Toaster } from "sonner";
 import AuthProvider from "@/components/auth/AuthProvider";
 
@@ -24,7 +23,6 @@ export default function RootLayout({
             {children}
           </AuthProvider>
         </ErrorBoundary>
-        <DevelopmentBanner />
         <Toaster 
           position="top-center" 
           dir="rtl"

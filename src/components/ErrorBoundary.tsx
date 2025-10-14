@@ -27,13 +27,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // Log to monitoring service in production
-    if (process.env.NODE_ENV === 'production') {
-      // Example: Sentry.captureException(error);
-    }
-
     // Show user-friendly error toast
     toast.error('خطایی در نمایش صفحه رخ داده است');
   }
@@ -66,18 +59,6 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
           متأسفانه در نمایش این بخش مشکلی پیش آمده است. 
           لطفاً صفحه را تازه‌سازی کرده یا بعداً تلاش کنید.
         </p>
-        
-        {process.env.NODE_ENV === 'development' && (
-          <details className="text-left mb-4 p-4 bg-base-200 rounded-lg">
-            <summary className="cursor-pointer text-sm font-semibold mb-2">
-              جزئیات خطا (محیط توسعه)
-            </summary>
-            <pre className="text-xs text-error whitespace-pre-wrap overflow-auto">
-              {error.message}
-              {error.stack && `\n\n${error.stack}`}
-            </pre>
-          </details>
-        )}
         
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button 

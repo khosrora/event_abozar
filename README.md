@@ -1,6 +1,6 @@
-# سایت سازمان بسیج رسانه استان اصفهان
+# سایت جشنواره ابوذر - سازمان بسیج رسانه استان اصفهان
 
-پلتفرمی مدرن برای آموزش، رویدادها و پوشش خبری کانون‌های رسانه‌ای در سراسر کشور
+پلتفرمی مدرن برای آموزش، رویدادها، اخبار و مدیریت جشنواره ابوذر
 
 ## 🚀 ویژگی‌های کلیدی
 
@@ -8,19 +8,21 @@
 - **Modern UI/UX**: رابط کاربری مدرن با DaisyUI و Tailwind CSS
 - **RTL Support**: پشتیبانی کامل از راست به چپ
 - **TypeScript**: امنیت نوع‌سازی و توسعه بهتر
-- **API Integration**: مدیریت یکپارچه API با Axios و error handling
-- **Animations**: انیمیشن‌های smooth و تعاملی
+- **API Integration**: مدیریت یکپارچه API با Axios و احراز هویت JWT
+- **Dashboard**: پنل کاربری برای مدیریت ثبت‌نام جشنواره و آثار
+- **Authentication**: سیستم ورود و ثبت‌نام با توکن‌های JWT
 - **Performance Optimized**: بهینه‌سازی عملکرد و SEO
 
 ## 🛠️ تکنولوژی‌های استفاده شده
 
-- **Frontend**: Next.js 15.5.4, React 19, TypeScript
+- **Frontend**: Next.js 15.5.4 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS 4, DaisyUI 5.1.29
-- **HTTP Client**: Axios با interceptors
-- **Notifications**: Sonner
+- **State Management**: Zustand با Persist middleware
+- **HTTP Client**: Axios با interceptors و مدیریت خطای هوشمند
+- **Notifications**: Sonner Toast
 - **Forms**: React Hook Form
-- **Animations**: Framer Motion, Custom CSS Animations
-- **Icons & Fonts**: فونت‌های فارسی (ایران‌سنس، کلمه)
+- **Animations**: Framer Motion
+- **Fonts**: ایران‌سنس، کلمه (فونت‌های محلی)
 
 ## 📦 نصب و راه‌اندازی
 
@@ -46,14 +48,20 @@ npm install
 cp .env.example .env.local
 ```
 
-سپس متغیرهای مورد نیاز را در `.env.local` تنظیم کنید:
+محتوای `.env.local`:
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_URL=http://78.157.40.195/
 ```
 
-4. **اجرای پروژه**
+4. **اجرای پروژه در محیط Development**
 ```bash
 npm run dev
+```
+
+5. **بیلد برای Production**
+```bash
+npm run build
+npm start
 ```
 
 وب‌سایت در آدرس `http://localhost:3000` در دسترس خواهد بود.
@@ -62,143 +70,149 @@ npm run dev
 
 ```
 src/
-├── app/                     # App Router (Next.js 13+)
-│   ├── (public)/           # Public routes
-│   │   ├── page.tsx        # صفحه اصلی
-│   │   ├── about/          # درباره ما
-│   │   ├── contact/        # تماس با ما
-│   │   ├── education/      # آموزش
-│   │   ├── events/         # رویدادها
-│   │   ├── news/           # اخبار
-│   │   └── register/       # ثبت نام
-│   ├── globals.css         # استایل‌های سراسری
-│   └── layout.tsx          # Layout اصلی
-├── components/             # کامپوننت‌های قابل استفاده مجدد
-│   ├── AnimatedSection.tsx # انیمیشن‌های اسکرول
-│   ├── ErrorBoundary.tsx   # مدیریت خطاها
-│   ├── Footer.tsx          # فوتر
-│   ├── LoadingCard.tsx     # Loading states
-│   └── Navbar.tsx          # نوار ناوبری
-├── hooks/                  # Custom React Hooks
-│   └── useApi.ts           # مدیریت API calls
-├── lib/                    # کتابخانه‌های کمکی
-│   ├── api.ts              # پیکربندی Axios
-│   ├── local_fonts.ts      # فونت‌های محلی
-│   └── useInView.ts        # Intersection Observer
-├── services/               # API Services
-│   └── api.ts              # تمام API calls
-├── types/                  # TypeScript Types
-│   └── api.ts              # تایپ‌های API
-└── constants/              # ثابت‌ها
-    └── cities.ts           # لیست شهرها
+├── app/                     
+│   ├── (public)/            # صفحات عمومی (بدون احراز هویت)
+│   │   ├── page.tsx         # صفحه اصلی
+│   │   ├── about/           # درباره ما
+│   │   ├── contact/         # تماس با ما
+│   │   ├── education/       # آموزش
+│   │   ├── events/          # رویدادها
+│   │   ├── news/            # اخبار
+│   │   ├── login/           # ورود
+│   │   └── register/        # ثبت‌نام
+│   ├── (dashboard)/         # پنل کاربری (نیاز به احراز هویت)
+│   │   └── dashboard/
+│   │       ├── page.tsx             # داشبورد اصلی و آمار
+│   │       ├── profile/             # پروفایل کاربر
+│   │       └── festival-registration/
+│   │           ├── page.tsx         # لیست ثبت‌نام‌های جشنواره
+│   │           ├── [id]/            # جزئیات ثبت‌نام
+│   │           └── new/             # ثبت‌نام جدید
+│   ├── globals.css          # استایل‌های سراسری
+│   └── layout.tsx           # Layout اصلی
+├── components/              
+│   ├── auth/                # کامپوننت‌های احراز هویت
+│   │   └── AuthGuard.tsx    # محافظ مسیرها
+│   ├── layout/              # کامپوننت‌های layout
+│   ├── ui/                  # کامپوننت‌های UI قابل استفاده مجدد
+│   ├── Footer.tsx           
+│   └── Navbar.tsx           
+├── services/                # سرویس‌های API
+│   ├── account.service.ts   # سرویس حساب کاربری
+│   ├── festival.service.ts  # سرویس جشنواره
+│   └── api.ts               # سرویس‌های عمومی
+├── store/                   # Zustand Store
+│   └── useAuthStore.ts      # مدیریت احراز هویت
+├── lib/                     
+│   ├── axios.ts             # پیکربندی Axios با interceptors
+│   └── local_fonts.ts       # فونت‌های محلی
+├── types/                   
+│   └── api.ts               # تایپ‌های TypeScript
+└── constants/               
+    └── cities.ts            # داده‌های ثابت
 ```
+
+## 🔐 احراز هویت و امنیت
+
+### جریان احراز هویت
+1. کاربر با شماره موبایل و رمز عبور وارد می‌شود
+2. Backend توکن‌های JWT (`access` و `refresh`) برمی‌گرداند
+3. توکن‌ها در localStorage و Zustand store ذخیره می‌شوند
+4. Axios interceptor به‌صورت خودکار توکن را به هدر درخواست‌ها اضافه می‌کند
+5. در صورت 401، کاربر به صفحه لاگین هدایت می‌شود
+
+### API Endpoints اصلی
+- `POST /account/login/` - ورود کاربر
+- `POST /account/register/` - ثبت‌نام کاربر
+- `POST /account/verify/` - اعتبارسنجی توکن
+- `GET /account/me/` - دریافت پروفایل کاربر
+- `GET /festival/my-statistics/` - آمار داشبورد
+- `GET /festival/my-registrations/` - لیست ثبت‌نام‌های جشنواره
+- `POST /festival/registration/` - ثبت‌نام در جشنواره
+- `POST /festival/work/` - ثبت اثر جدید
 
 ## 🔧 API Integration
 
-### حالت‌های API
+### نحوه استفاده از سرویس‌ها
 
-پروژه از یک سیستم adaptive API استفاده می‌کند که دارای ۳ حالت است:
+```typescript
+// مثال: دریافت آمار داشبورد
+import { festivalService } from '@/services';
 
-1. **Mock Data** (پیش‌فرض در development): 
-   - داده‌های نمونه محلی
-   - عدم نیاز به سرور backend
-   - مناسب برای توسعه و تست UI
+const stats = await festivalService.getMyStatistics();
 
-2. **Real API**: 
-   - اتصال به سرور واقعی
-   - قابل فعال‌سازی با تغییر `NEXT_PUBLIC_USE_MOCK_DATA=false`
+// مثال: ثبت اثر جدید با فایل
+const workData = {
+  festival_registration: registrationId,
+  title: 'عنوان اثر',
+  description: 'توضیحات',
+  file: fileObject // File object
+};
 
-3. **Fallback Mode**: 
-   - تلاش برای real API اول
-   - در صورت خطا، fallback به mock data
-   - مناسب برای محیط production
-
-### تنظیمات
-
-فایل `.env.local`:
-```bash
-# استفاده از mock data (پیش‌فرض: true در development)
-NEXT_PUBLIC_USE_MOCK_DATA=true
-
-# آدرس API سرور
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
-```
-
-### مثال استفاده از API Hook:
-
-```tsx
-import { useApiList } from '@/hooks/useApi';
-import { newsApi } from '@/services/api';
-
-function NewsComponent() {
-  const {
-    items: news,
-    loading,
-    error,
-    refresh
-  } = useApiList(() => newsApi.getAll({ limit: 10 }), {
-    immediate: true
-  });
-
-  if (loading) return <LoadingCard />;
-  if (error) return <div>خطا در بارگذاری</div>;
-
-  return (
-    <div>
-      {news.map(item => (
-        <div key={item.id}>{item.title}</div>
-      ))}
-    </div>
-  );
-}
+await festivalService.createWork(workData);
 ```
 
 ## 📱 Responsive Design
 
-پروژه با رویکرد Mobile-First طراحی شده:
-- **Mobile**: < 640px
-- **Tablet**: 640px - 1024px  
-- **Desktop**: > 1024px
+- **Mobile-First**: طراحی با رویکرد موبایل اول
+- **Breakpoints**: sm(640px), md(768px), lg(1024px), xl(1280px)
+- **Testing**: تست شده روی دستگاه‌های مختلف
 
 ## 🎨 Theme و Styling
 
-- استفاده از DaisyUI themes
-- Support کامل RTL
-- فونت‌های فارسی بهینه‌شده
-- Custom animations و transitions
+- **DaisyUI Themes**: پشتیبانی از حالت روشن/تاریک
+- **RTL Support**: پشتیبانی کامل راست‌چین
+- **Custom Fonts**: ایران‌سنس، کلمه
+- **Animations**: Smooth transitions با Framer Motion
 
-## 🚦 Error Handling
+## 🚦 مدیریت خطا
 
-- **Error Boundary**: برای مدیریت خطاهای React
-- **API Error Handling**: با interceptors و toast notifications
-- **Loading States**: برای تمام API calls
-- **Graceful Fallbacks**: برای حالت‌های خطا
+- **Error Boundary**: گرفتن خطاهای React
+- **API Errors**: مدیریت و نمایش خطاهای API با Toast
+- **Loading States**: نمایش وضعیت بارگذاری
+- **401 Handling**: هدایت خودکار به صفحه لاگین
 
-## 📊 Performance Optimization
-
-- **Image Optimization**: lazy loading و responsive images
-- **Code Splitting**: با Next.js App Router
-- **Bundle Optimization**: tree shaking و minification
-- **SEO Optimized**: meta tags و structured data
-
-## 🔒 نکات امنیتی
-
-- **Input Validation**: با React Hook Form
-- **XSS Protection**: sanitization
-- **HTTPS**: برای production
-- **Environment Variables**: برای تنظیمات حساس
-
-## 🚀 Production Build
+## 🚀 بیلد Production
 
 ```bash
-# ساخت پروژه برای production
+# ساخت بیلد بهینه‌شده
 npm run build
 
-# اجرای production build
+# اجرا در حالت production
 npm start
 ```
 
-## 📄 مستندات API
+بیلد production شامل:
+- Minification و compression
+- Tree shaking
+- Image optimization
+- Code splitting
+
+## 📝 مستندات
+
+برای مستندات کامل API و راهنمای توسعه به فایل `API_INTEGRATION.md` مراجعه کنید.
+
+## 🤝 مشارکت
+
+برای مشارکت در پروژه:
+1. Fork کنید
+2. Branch جدید بسازید (`git checkout -b feature/AmazingFeature`)
+3. تغییرات را commit کنید (`git commit -m 'Add some AmazingFeature'`)
+4. Push به branch (`git push origin feature/AmazingFeature`)
+5. Pull Request باز کنید
+
+## 📄 لایسنس
+
+این پروژه تحت لایسنس MIT منتشر شده است.
+
+## 👥 تیم توسعه
+
+سازمان بسیج رسانه استان اصفهان
+
+---
+
+**نسخه**: 1.0.0  
+**آخرین به‌روزرسانی**: دی 1403
 
 API endpoints مورد انتظار:
 

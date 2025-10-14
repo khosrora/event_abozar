@@ -9,29 +9,23 @@ import type { ApiResponse, ApiError } from '@/types/api';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  // Make sure we have the correct base URL for the API
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001',
-  timeout: 15000, // Increased timeout for production API
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://78.157.40.195',
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
 
-// Log the API base URL during initialization
-console.log(`🔌 API initialized with baseURL: ${api.defaults.baseURL}`);
-
 // Request interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add auth token if available from Zustand store or fallback to localStorage
+    // Add auth token if available
     let token = null;
     if (typeof window !== 'undefined') {
-      // Try to get from Zustand store via window object
       if (window.__ZUSTAND_STATE__?.['auth-storage']?.state?.token) {
         token = window.__ZUSTAND_STATE__['auth-storage'].state.token;
       } else {
-        // Fallback to localStorage/sessionStorage
         token = localStorage.getItem('authToken') || sessionStorage.getItem('access_token');
       }
     }
@@ -44,20 +38,10 @@ api.interceptors.request.use(
     if (config.method === 'get' && config.params) {
       config.params._t = Date.now();
     }
-    
-    // Debug logging for API requests
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, { 
-        headers: config.headers,
-        params: config.params,
-        data: config.data,
-      });
-    }
 
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -65,21 +49,13 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Return response data directly (Django REST Framework returns data directly, not wrapped)
     return response.data;
   },
   (error) => {
-    console.error('API Error:', error);
-
-    // Network error handling - Don't show toast in development when using fallback
+    // Network error handling
     if (!error.response) {
       const errorMessage = 'خطا در اتصال به سرور';
-      
-      // Only show toast if we're not in development or if mock fallback is disabled
-      if (process.env.NODE_ENV === 'production' || 
-          process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'false') {
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
       
       return Promise.reject({
         message: errorMessage,
@@ -94,10 +70,6 @@ api.interceptors.response.use(
 
     switch (status) {
       case 400:
-        // Log detailed error information for debugging
-        console.log('400 Bad Request Details:', { data, url: error.config?.url });
-        
-        // For validation errors, try to extract specific field errors
         if (data?.errors) {
           const errorFields = Object.entries(data.errors)
             .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)

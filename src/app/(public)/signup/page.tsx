@@ -37,7 +37,6 @@ export default function SignupPage() {
       return;
     }
 
-    // Check password match
     if (data.password !== data.confirm_password) {
       toast.error('رمز عبور و تکرار آن یکسان نیست');
       return;
@@ -46,27 +45,34 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      // Send data in the exact format required by the API
-      // Don't use formatPhoneNumber because it adds spaces
       const signupData = {
         full_name: data.fullName,
-        phone: data.mobile, // Send phone without formatting
+        phone: data.mobile,
         password: data.password,
       };
-      
-      console.log('📤 Sending signup data:', signupData);
 
       const response = await authApi.signup(signupData);
       
-      // Store tokens
-      localStorage.setItem('access_token', response.access);
-      localStorage.setItem('refresh_token', response.refresh);
+      // Store tokens with proper fallback
+      const accessToken = response.tokens?.access || response.access;
+      const refreshToken = response.tokens?.refresh || response.refresh;
+      
+      if (accessToken) {
+        localStorage.setItem('token', accessToken);
+        localStorage.setItem('access', accessToken);
+        localStorage.setItem('access_token', accessToken);
+      }
+      
+      if (refreshToken) {
+        localStorage.setItem('refresh', refreshToken);
+        localStorage.setItem('refresh_token', refreshToken);
+      }
+      
       localStorage.setItem('user', JSON.stringify(response.user));
 
       toast.success(TOAST_MESSAGES.SIGNUP.SUCCESS);
-      router.push(ROUTES.DASHBOARD);
+      router.push('/dashboard/festival-registration/new');
     } catch (error: any) {
-      console.error('Signup error:', error);
       toast.error(error.message || 'خطا در ثبت نام. لطفا دوباره تلاش کنید.');
     } finally {
       setIsLoading(false);

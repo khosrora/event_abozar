@@ -29,25 +29,19 @@ export default function LoginPage() {
   } = useForm<LoginFormData>();
 
   const onSubmit = async (data: LoginFormData) => {
-    // Validate phone number
     if (!validatePhoneNumber(data.mobile)) {
       toast.error('شماره موبایل معتبر نیست');
       return;
     }
 
-    // Login using our auth store - send phone without formatting
     const loginData = {
-      phone: data.mobile, // Don't format - send as is (09xxxxxxxxx)
+      phone: data.mobile,
       password: data.password,
     };
-    
-    // Log data for debugging
-    console.log('Login data being sent:', loginData);
 
     const success = await login(loginData);
     
     if (success) {
-      // Store preference in appropriate storage
       const storageType = data.rememberMe ? 'localStorage' : 'sessionStorage';
       if (typeof window !== 'undefined') {
         localStorage.setItem('authStorageType', storageType);
@@ -148,22 +142,7 @@ export default function LoginPage() {
               </div>
 
               {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between text-sm">
-                <label className="label cursor-pointer gap-2 p-0">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary checkbox-sm"
-                    {...register('rememberMe')}
-                  />
-                  <span className="label-text">مرا به خاطر بسپار</span>
-                </label>
-                <Link 
-                  href="/forgot-password" 
-                  className="link link-primary text-sm hover:link-hover"
-                >
-                  فراموشی رمز عبور
-                </Link>
-              </div>
+
 
               {/* Submit Button */}
               <button

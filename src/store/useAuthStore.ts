@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apiClient } from '@/lib/api';
+import { apiClient, getAuthToken } from '@/lib/axios';
 import type { User, LoginData, ApiError } from '@/types/api';
 import { toast } from 'sonner';
+import { accountService } from '@/services/account.service';
 
 interface AuthState {
   user: User | null;
@@ -40,24 +41,46 @@ const useAuthStore = create<AuthState>()(
       login: async (data: LoginData) => {
         set({ isLoading: true });
         try {
-          const response = await apiClient.post<{
-            access_token: string;
-            user: User;
-          }>('/account/login/', data);
+          const response = await apiClient.post('/account/login/', data);
+          const responseData = response.data;
 
-          // Save auth data
+          // استخراج توکن از پاسخ
+          const token = responseData?.tokens?.access || responseData?.access;
+          const refreshToken = responseData?.tokens?.refresh || responseData?.refresh;
+          
+          // بررسی وجود توکن معتبر
+          if (!token || token === 'undefined' || token === 'null') {
+            set({ isLoading: false, isAuthenticated: false, token: null, user: null });
+            toast.error('توکن احراز هویت دریافت نشد');
+            return false;
+          }
+
+          // ذخیره در state
           set({
-            user: response.user,
-            token: response.access_token,
+            user: responseData.user,
+            token: token,
             isAuthenticated: true,
             isLoading: false,
           });
           
+          // ذخیره در localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+            localStorage.setItem('access', token);
+            localStorage.setItem('access_token', token);
+            if (refreshToken) {
+              localStorage.setItem('refresh', refreshToken);
+              localStorage.setItem('refresh_token', refreshToken);
+            }
+          }
+          
           toast.success('ورود با موفقیت انجام شد');
           return true;
-        } catch (error) {
-          const apiError = error as ApiError;
-          toast.error(apiError.message || 'خطا در ورود به سیستم');
+        } catch (error: any) {
+          const errorMessage = error.response?.data?.message || 
+                              error.response?.data?.detail ||
+                              'خطا در ورود به سیستم';
+          toast.error(errorMessage);
           set({ isLoading: false });
           return false;
         }
@@ -66,40 +89,41 @@ const useAuthStore = create<AuthState>()(
       register: async (data: RegisterData) => {
         set({ isLoading: true });
         try {
-          // Log the exact request being sent
-          console.log('Sending registration request with data:', data);
-          
-          // Send the data directly as received from the form
-          // This ensures we're using the exact field names as specified in the API documentation
-          const response = await apiClient.post<{
-            access_token: string;
-            user: User;
-          }>('/account/register/', data);
+          const response = await apiClient.post('/account/register/', data);
+          const responseData = response.data;
 
-          console.log('Registration response:', response);
+          // استخراج توکن از پاسخ
+          const token = responseData?.tokens?.access || responseData?.access;
+          const refreshToken = responseData?.tokens?.refresh || responseData?.refresh;
+          
+          if (!token || token === 'undefined' || token === 'null') {
+            set({ isLoading: false, isAuthenticated: false, token: null, user: null });
+            toast.error('توکن احراز هویت دریافت نشد');
+            return false;
+          }
 
           // Auto login after successful registration
           set({
-            user: response.user,
-            token: response.access_token,
+            user: responseData.user,
+            token: token,
             isAuthenticated: true,
             isLoading: false,
           });
           
+          // ذخیره در localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+            localStorage.setItem('access', token);
+            localStorage.setItem('access_token', token);
+            if (refreshToken) {
+              localStorage.setItem('refresh', refreshToken);
+              localStorage.setItem('refresh_token', refreshToken);
+            }
+          }
+          
           toast.success('ثبت‌نام با موفقیت انجام شد');
           return true;
         } catch (error: any) {
-          // Log detailed error information for debugging
-          console.error('Registration error details:', error);
-          console.error('Response data:', error.response?.data);
-          console.error('Request config:', {
-            url: error.config?.url,
-            method: error.config?.method,
-            headers: error.config?.headers,
-            data: JSON.parse(error.config?.data || '{}')
-          });
-          
-          // Format error message based on server response
           let errorMessage = 'خطا در ثبت‌نام';
           
           if (error.response?.data) {
@@ -135,11 +159,13 @@ const useAuthStore = create<AuthState>()(
         // Clear all possible auth-related items from browser storage
         if (typeof window !== 'undefined') {
           // Clear tokens and user data
+          localStorage.removeItem('token'); // کلید اصلی که در interceptor استفاده می‌شود
           localStorage.removeItem('authToken');
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
           
+          sessionStorage.removeItem('token');
           sessionStorage.removeItem('authToken');
           sessionStorage.removeItem('access_token');
           sessionStorage.removeItem('refresh_token');
@@ -166,14 +192,33 @@ const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        // This is called after the state is restored from storage
-        if (state) {
-          state.setHydrated(true);
-          console.log('✅ Auth state hydrated from storage:', {
-            hasUser: !!state.user,
-            hasToken: !!state.token,
-            isAuthenticated: state.isAuthenticated
-          });
+        if (!state || typeof window === 'undefined') return;
+
+        // علامت هیدراته شدن
+        state.setHydrated(true);
+
+        // نرمال‌سازی توکن‌های ذخیره شده و پاکسازی مقادیر بد
+        const rawToken = localStorage.getItem('token');
+        const access = localStorage.getItem('access');
+        const accessToken = localStorage.getItem('access_token');
+
+        const normalize = (t: string | null) => (t && t !== 'undefined' && t !== 'null' ? t : null);
+        const candidates = [normalize(rawToken), normalize(access), normalize(accessToken)];
+        const selected = candidates.find(Boolean) || null;
+
+        // همگام‌سازی با localStorage اگر توکن معتبری وجود دارد
+        if (selected && selected !== state.token) {
+          state.token = selected;
+          state.isAuthenticated = true;
+        }
+
+        // پاکسازی توکن‌های بد
+        if (!selected) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('access');
+          localStorage.removeItem('access_token');
+          state.token = null;
+          state.isAuthenticated = false;
         }
       },
     }
