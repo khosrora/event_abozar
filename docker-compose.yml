@@ -1,0 +1,15 @@
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - app
+    ports:
+      - '127.0.0.1:3001:3000'
+
+networks:
+  app:
+    name: app
+    external: true
