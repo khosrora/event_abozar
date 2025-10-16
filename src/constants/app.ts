@@ -36,7 +36,7 @@ export const ROUTES = {
 export const FESTIVAL_FORMATS = [
   { value: 'news_report', label: 'گزارش خبری' },
   { value: 'interview', label: 'مصاحبه' },
-  { value: 'article', label: 'یادداشت و سرمقاله' },
+  { value: 'editorial', label: 'یادداشت و سرمقاله' },
   { value: 'headline', label: 'تیتر' },
   { value: 'infographic', label: 'اینفوگرافی' },
   { value: 'motion_graphic', label: 'موشن گرافی' },
@@ -53,12 +53,12 @@ export const FESTIVAL_TOPICS = [
   { value: 'media_industry', label: 'پیوند رسانه و صنعت' },
   { value: 'social_harms', label: 'مقابله با آسیب‌های اجتماعی' },
   { value: 'revolution_achievements', label: 'دستاوردهای انقلاب اسلامی' },
-  { value: 'basij', label: 'بسیج و حوزه‌های اقدام' },
-  { value: 'hope_joy', label: 'امید و نشاط آفرینی' },
-  { value: 'family', label: 'خانواده، جامعه و فرزندآوری' },
-  { value: 'lifestyle', label: 'سبک زندگی ایرانی اسلامی' },
-  { value: 'sacrifice', label: 'ایثار و شهادت' },
-  { value: 'saving', label: 'صرفه‌جویی در مصرف آب و برق' },
+  { value: 'basij_action', label: 'بسیج و حوزه‌های اقدام' },
+  { value: 'hope_happiness', label: 'امید و نشاط آفرینی' },
+  { value: 'family_society', label: 'خانواده، جامعه و فرزندآوری' },
+  { value: 'islamic_lifestyle', label: 'سبک زندگی ایرانی اسلامی' },
+  { value: 'sacrifice_martyrdom', label: 'ایثار و شهادت' },
+  { value: 'water_electricity_saving', label: 'صرفه‌جویی در مصرف آب و برق' },
 ] as const;
 
 // Education levels

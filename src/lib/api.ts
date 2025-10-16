@@ -9,7 +9,7 @@ import type { ApiResponse, ApiError } from '@/types/api';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://78.157.40.195',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.brisf.ir',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

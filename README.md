@@ -50,7 +50,7 @@ cp .env.example .env.local
 
 محتوای `.env.local`:
 ```env
-NEXT_PUBLIC_API_URL=http://78.157.40.195/
+NEXT_PUBLIC_API_URL=https://api.brisf.ir/
 ```
 
 4. **اجرای پروژه در محیط Development**

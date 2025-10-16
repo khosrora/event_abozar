@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base API URL - باید در .env.local تنظیم شود
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://78.157.40.195/';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.brisf.ir/';
 
 // Flag to prevent multiple redirects
 let isRedirecting = false;

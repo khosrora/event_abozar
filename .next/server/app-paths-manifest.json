@@ -1,9 +1,9 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/(public)/login/page": "app/(public)/login/page.js",
-  "/(public)/page": "app/(public)/page.js",
-  "/(dashboard)/dashboard/festival-registration/[id]/page": "app/(dashboard)/dashboard/festival-registration/[id]/page.js",
-  "/(dashboard)/dashboard/profile/page": "app/(dashboard)/dashboard/profile/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/(dashboard)/dashboard/festival-registration/new/page": "app/(dashboard)/dashboard/festival-registration/new/page.js",
   "/(dashboard)/dashboard/festival-registration/page": "app/(dashboard)/dashboard/festival-registration/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
+  "/(dashboard)/dashboard/festival-registration/[id]/submit-work/page": "app/(dashboard)/dashboard/festival-registration/[id]/submit-work/page.js",
+  "/(dashboard)/dashboard/festival-registration/[id]/works/page": "app/(dashboard)/dashboard/festival-registration/[id]/works/page.js",
+  "/(dashboard)/dashboard/profile/page": "app/(dashboard)/dashboard/profile/page.js"
 }

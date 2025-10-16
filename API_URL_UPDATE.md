@@ -2,17 +2,17 @@
 
 ## 📍 آدرس جدید API
 
-**Base URL**: `http://78.157.40.195/`
+**Base URL**: `https://api.brisf.ir/`
 
 ## 📝 فایل‌های به‌روزرسانی شده
 
 ### 1. `src/lib/axios.ts`
-- ✅ Base URL به `http://78.157.40.195/` تغییر کرد
+- ✅ Base URL به `https://api.brisf.ir/` تغییر کرد
 - Default fallback برای زمانی که environment variable تنظیم نشده
 
 ### 2. `.env.local`
 ```bash
-NEXT_PUBLIC_API_URL=http://78.157.40.195/
+NEXT_PUBLIC_API_URL=https://api.brisf.ir/
 NEXT_PUBLIC_USE_MOCK_DATA=false
 ```
 
@@ -35,7 +35,7 @@ NEXT_PUBLIC_USE_MOCK_DATA=false
 ### حالت Production (پیش‌فرض)
 ```bash
 # تنظیم .env.local
-NEXT_PUBLIC_API_URL=http://78.157.40.195/
+NEXT_PUBLIC_API_URL=https://api.brisf.ir/
 NEXT_PUBLIC_USE_MOCK_DATA=false
 ```
 
@@ -99,4 +99,4 @@ Authorization: Bearer {token}
 
 ---
 
-**آدرس کامل سرور**: http://78.157.40.195/
+**آدرس کامل سرور**: https://api.brisf.ir/

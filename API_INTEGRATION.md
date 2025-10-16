@@ -6,14 +6,14 @@ This document provides a comprehensive overview of all API integrations implemen
 ## Base Configuration
 
 ### Axios Instance (`src/lib/axios.ts`)
-- Base URL: `http://78.157.40.195/
+- Base URL: `https://api.brisf.ir/
 - Request Interceptor: Automatically adds Bearer token from localStorage
 - Response Interceptor: Handles 401 errors and redirects to login
 - FormData Helper: `createFormData()` utility for multipart/form-data uploads
 
 ```typescript
 const apiClient = axios.create({
-  baseURL: 'http://78.157.40.195/',
+  baseURL: 'https://api.brisf.ir/',
   headers: {
     'Content-Type': 'application/json',
   },

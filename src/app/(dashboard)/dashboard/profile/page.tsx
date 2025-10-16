@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { accountService } from '@/services';
 import { User, UpdateUserProfile } from '@/types/api';
+import { toast } from 'sonner';
 
 // Simple toast for now
 const showToast = {
@@ -42,8 +43,7 @@ export default function DashboardProfilePage() {
       setUser(data);
       reset({ fullName: data.fullName });
     } catch (error: any) {
-      console.error('Error loading profile:', error);
-      showToast.error('خطا در بارگذاری اطلاعات پروفایل');
+      toast.error('خطا در بارگذاری اطلاعات پروفایل');
     } finally {
       setIsLoading(false);
     }
@@ -56,10 +56,9 @@ export default function DashboardProfilePage() {
       setUser(updatedUser);
       reset({ fullName: updatedUser.fullName });
       setIsEditing(false);
-      showToast.success('اطلاعات پروفایل با موفقیت به‌روزرسانی شد');
+      toast.success('اطلاعات پروفایل با موفقیت به‌روزرسانی شد');
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      showToast.error(
+      toast.error(
         error.response?.data?.message || 'خطا در به‌روزرسانی اطلاعات'
       );
     } finally {

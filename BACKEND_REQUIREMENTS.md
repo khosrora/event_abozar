@@ -224,17 +224,17 @@ REST_FRAMEWORK = {
 
 ```bash
 # 1. Login
-curl -X POST http://78.157.40.195/account/login/ \
+curl -X POST https://api.brisf.ir/account/login/ \
   -H "Content-Type: application/json" \
   -d '{"phone": "09123456789", "password": "test123"}'
 
 # 2. Refresh Token
-curl -X POST http://78.157.40.195/account/refresh/ \
+curl -X POST https://api.brisf.ir/account/refresh/ \
   -H "Content-Type: application/json" \
   -d '{"refresh": "YOUR_REFRESH_TOKEN"}'
 
 # 3. Get Profile
-curl -X GET http://78.157.40.195/account/me/ \
+curl -X GET https://api.brisf.ir/account/me/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
@@ -242,7 +242,7 @@ curl -X GET http://78.157.40.195/account/me/ \
 ```python
 import requests
 
-BASE_URL = "http://78.157.40.195"
+BASE_URL = "https://api.brisf.ir"
 
 # Login
 response = requests.post(
