@@ -33,7 +33,7 @@ export default function EducationDetailPage() {
     return (
       <div dir="rtl" className="mx-auto max-w-5xl px-4 py-8 md:px-6 lg:px-8">
         <ErrorAlert
-          message={error?.message || TOAST_MESSAGES.ERROR.NOT_FOUND}
+          message={error?.message}
           backUrl={ROUTES.EDUCATION}
           backLabel="بازگشت به لیست آموزش‌ها"
         />
@@ -55,7 +55,7 @@ export default function EducationDetailPage() {
       publishDate={education.publish_date}
       tags={education.tags}
       breadcrumbs={breadcrumbs}
-      onCopy={() => toast.success(TOAST_MESSAGES.SUCCESS.COPIED)}
+      onCopy={() => toast.success(TOAST_MESSAGES.SUCCESS)}
     />
   );
 }

@@ -6,17 +6,7 @@ import { accountService } from '@/services';
 import { User, UpdateUserProfile } from '@/types/api';
 import { toast } from 'sonner';
 
-// Simple toast for now
-const showToast = {
-  error: (message: string) => {
-    console.error(message);
-    alert(message);
-  },
-  success: (message: string) => {
-    console.log(message);
-    alert(message);
-  }
-};
+
 
 export default function DashboardProfilePage() {
   const [user, setUser] = useState<User | null>(null);

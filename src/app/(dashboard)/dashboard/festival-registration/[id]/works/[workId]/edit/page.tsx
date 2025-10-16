@@ -12,18 +12,8 @@ import {
   ACCEPTED_VIDEO_TYPES,
   ACCEPTED_IMAGE_TYPES,
 } from "@/constants";
+import { toast } from "sonner";
 
-// Simple toast
-const showToast = {
-  error: (message: string) => {
-    console.error(message);
-    alert(message);
-  },
-  success: (message: string) => {
-    console.log(message);
-    alert(message);
-  }
-};
 
 type WorkEditFormValues = {
   title: string;
@@ -62,7 +52,7 @@ export default function EditWorkPage() {
         const work = works.find((w) => w.id === parseInt(workId));
         
         if (!work) {
-          showToast.error("اثر مورد نظر یافت نشد");
+          toast.error("اثر مورد نظر یافت نشد");
           router.push(`/dashboard/festival-registration/${registrationId}/works`);
           return;
         }
@@ -89,7 +79,7 @@ export default function EditWorkPage() {
         setLoading(false);
       } catch (error: any) {
         console.error("Error loading work:", error);
-        showToast.error("خطا در بارگذاری اطلاعات اثر");
+        toast.error("خطا در بارگذاری اطلاعات اثر");
         setLoading(false);
       }
     };
@@ -138,20 +128,20 @@ export default function EditWorkPage() {
         
         if (isVideo) {
           if (!ACCEPTED_VIDEO_TYPES.includes(file.type)) {
-            showToast.error("فرمت ویدیو مورد قبول نیست");
+            toast.error("فرمت ویدیو مورد قبول نیست");
             return;
           }
           if (file.size > MAX_VIDEO_SIZE) {
-            showToast.error("حجم ویدیو نباید بیشتر از 5 مگابایت باشد");
+            toast.error("حجم ویدیو نباید بیشتر از 5 مگابایت باشد");
             return;
           }
         } else if (isImage) {
           if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-            showToast.error("فرمت تصویر مورد قبول نیست");
+            toast.error("فرمت تصویر مورد قبول نیست");
             return;
           }
           if (file.size > MAX_IMAGE_SIZE) {
-            showToast.error("حجم تصویر نباید بیشتر از 2 مگابایت باشد");
+            toast.error("حجم تصویر نباید بیشتر از 2 مگابایت باشد");
             return;
           }
         }
@@ -188,13 +178,13 @@ export default function EditWorkPage() {
         await festivalService.updateWork(parseInt(workId), workData);
       }
 
-      showToast.success("اثر شما با موفقیت بروزرسانی شد");
+      toast.success("اثر شما با موفقیت بروزرسانی شد");
       router.push(`/dashboard/festival-registration/${registrationId}/works`);
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message ||
         "خطا در بروزرسانی اثر. لطفاً دوباره تلاش کنید";
-      showToast.error(errorMessage);
+      toast.error(errorMessage);
       setUploadProgress(0);
     }
   };

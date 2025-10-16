@@ -14,17 +14,6 @@ import {
 } from "@/constants";
 import { toast } from "sonner";
 
-// Simple toast
-const showToast = {
-  error: (message: string) => {
-    console.error(message);
-    alert(message);
-  },
-  success: (message: string) => {
-    console.log(message);
-    alert(message);
-  }
-};
 
 type WorkSubmissionFormValues = {
   title: string;
@@ -73,7 +62,7 @@ export default function SubmitWorkPage() {
     const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
     if (file.size > maxSize) {
       const maxSizeMB = maxSize / (1024 * 1024);
-      showToast.error(`حجم فایل نباید بیشتر از ${maxSizeMB} مگابایت باشد`);
+      toast.error(`حجم فایل نباید بیشتر از ${maxSizeMB} مگابایت باشد`);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }

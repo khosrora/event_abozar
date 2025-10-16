@@ -1,0 +1,27 @@
+.radial-progress {
+  --progress: 0%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.radial-progress::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(currentColor var(--progress), transparent var(--progress));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--thickness, 10px)), #000 calc(100% - var(--thickness, 10px)));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--thickness, 10px)), #000 calc(100% - var(--thickness, 10px)));
+}
+
+/* Usage Example:
+.radial-progress {
+  --progress: 75%; // Change this value to update progress
+  --thickness: 4px; // Optional: change thickness of progress ring
+  width: 60px;     // Set size
+  height: 60px;    // Set size
+  color: #4338ca;  // Set color
+}
+*/
