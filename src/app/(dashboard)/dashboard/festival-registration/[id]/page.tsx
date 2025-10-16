@@ -30,7 +30,7 @@ export default function RegistrationDetailsPage() {
       const works = await festivalService.getWorksByFestival(Number(registrationId));
       setWorksCount(works.length);
     } catch (error) {
-      toast.error("خطا در دریافت جزئیات ثبت‌نام");
+      toast.error("خطا در دریافت جزئیات ثبت‌ نام");
       router.push("/dashboard/festival-registration");
     } finally {
       setLoading(false);
