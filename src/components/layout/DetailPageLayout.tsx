@@ -3,13 +3,14 @@
  * Reusable layout for news, events, and education detail pages
  */
 
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb';
-import { Badge } from '@/components/ui/Badge';
-import { getImageUrl, calculateReadingTime, formatPersianDate } from '@/utils';
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { Breadcrumb, BreadcrumbItem } from "@/components/ui/Breadcrumb";
+import { Badge } from "@/components/ui/Badge";
+import { getImageUrl, calculateReadingTime, formatPersianDate } from "@/utils";
+import DescriptionEditor from "../ui/DescriptionEditor";
 
 interface DetailPageLayoutProps {
   title: string;
@@ -38,16 +39,12 @@ export function DetailPageLayout({
 }: DetailPageLayoutProps) {
   const router = useRouter();
 
-  const readingTime = useMemo(() => {
-    return calculateReadingTime(description);
-  }, [description]);
-
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       onCopy?.();
     } catch (error) {
-      console.error('Failed to copy:', error);
+      console.error("Failed to copy:", error);
     }
   };
 
@@ -77,7 +74,7 @@ export function DetailPageLayout({
 
         <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-3 text-sm text-base-content/70">
-            <Badge variant="outline">{readingTime}</Badge>
+            {/* <Badge variant="outline">{readingTime}</Badge> */}
             {publishDate && (
               <Badge variant="ghost">{formatPersianDate(publishDate)}</Badge>
             )}
@@ -102,10 +99,11 @@ export function DetailPageLayout({
       </section>
 
       {/* Content */}
-      <article className="prose prose-sm rtl:prose-p:text-right prose-headings:font-extrabold md:prose-base lg:prose-lg mt-6 max-w-none">
-        {description.split('\n').map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
+      <article
+        className="prose prose-sm rtl:prose-p:text-right prose-headings:font-extrabold md:prose-base lg:prose-lg mt-6 max-w-none"
+        style={{ fontFamily: "Vazirmatn, sans-serif" }}
+      >
+        <DescriptionEditor text={description} />
       </article>
 
       {/* Tags */}

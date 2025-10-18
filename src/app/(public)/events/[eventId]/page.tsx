@@ -54,10 +54,7 @@ export default function EventDetailPage() {
 
   if (!event) {
     return (
-      <ErrorAlert
-        message="رویداد مورد نظر یافت نشد"
-        backUrl={ROUTES.EVENTS}
-      />
+      <ErrorAlert message="رویداد مورد نظر یافت نشد" backUrl={ROUTES.EVENTS} />
     );
   }
 
