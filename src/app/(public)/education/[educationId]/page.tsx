@@ -14,7 +14,11 @@ export default function EducationDetailPage() {
   const educationId = pathname?.split("/").pop() || "1";
 
   // Fetch education data from API
-  const { data: education, loading, error } = useApi<EducationContent>(
+  const {
+    data: education,
+    loading,
+    error,
+  } = useApi<EducationContent>(
     () => educationApi.getById(Number(educationId)),
     { immediate: true, showErrorToast: false }
   );
@@ -42,8 +46,8 @@ export default function EducationDetailPage() {
   }
 
   const breadcrumbs = [
-    { label: 'خانه', href: ROUTES.HOME },
-    { label: 'آموزش‌ها', href: ROUTES.EDUCATION },
+    { label: "خانه", href: ROUTES.HOME },
+    { label: "آموزش‌ها", href: ROUTES.EDUCATION },
     { label: education.title },
   ];
 
