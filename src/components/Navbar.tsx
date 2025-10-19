@@ -86,7 +86,7 @@ export default function Navbar() {
         {/* Left: Brand (in RTL this visually sits on the right) */}
         <div className="navbar-start">
           {/* Mobile dropdown */}
-          <div className="dropdown md:hidden">
+          <div className="dropdown lg:hidden">
             <div
               tabIndex={0}
               role="button"
@@ -110,10 +110,10 @@ export default function Navbar() {
             </div>
             <ul
               tabIndex={0}
-              className="menu dropdown-content mt-3 w-64 rounded-xl bg-base-100 p-3 shadow-xl border border-base-200 backdrop-blur-sm"
+              className="menu text-sm dropdown-content mt-3 w-64 rounded-xl bg-base-100 p-3 shadow-xl border border-base-200 backdrop-blur-sm"
             >
               {NAV_ITEMS.map((item) => (
-                <li key={item.href} className="mb-1">
+                <li key={item.href} className="mb-1 tet-xs">
                   <ActiveLink href={item.href}>{item.label}</ActiveLink>
                 </li>
               ))}
@@ -161,10 +161,10 @@ export default function Navbar() {
         </div>
 
         {/* Center: Desktop menu */}
-        <div className="navbar-center hidden md:flex">
+        <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal gap-1">
             {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="text-xs">
                 <ActiveLink href={item.href}>{item.label}</ActiveLink>
               </li>
             ))}
@@ -176,7 +176,7 @@ export default function Navbar() {
           {/* Register CTA (desktop) */}
           <Link
             href="/dashboard/festival-registration/new"
-            className="btn btn-primary btn-sm md:btn-md hidden md:inline-flex"
+            className="btn btn-primary btn-sm md:btn-md hidden lg:inline-flex"
           >
             ثبت‌نام در جشنواره
           </Link>

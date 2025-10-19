@@ -65,7 +65,7 @@ export function DetailPageLayout({
           <img
             src={getImageUrl(image)}
             alt={title}
-            className="h-72 w-full object-cover md:h-96"
+            className="h-72 w-full object-cover md:h-124"
           />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-200/90 via-base-200/40 to-transparent p-4">
             <h1 className="text-2xl font-extrabold md:text-3xl">{title}</h1>
@@ -84,9 +84,7 @@ export function DetailPageLayout({
             <button className="btn join-item btn-ghost" onClick={handleCopy}>
               کپی لینک
             </button>
-            <button className="btn join-item btn-ghost" onClick={handlePrint}>
-              چاپ
-            </button>
+   
             {actions}
             <button
               className="btn join-item btn-primary"
