@@ -98,7 +98,7 @@ export default function HomePage() {
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 animate-fadeIn [animation-delay:0.4s]">
         <Link
-          href="/register"
+          href="/signup"
           className="btn btn-primary btn-wide text-base md:text-lg font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
         >
           شروع کنید
