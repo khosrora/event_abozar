@@ -48,7 +48,10 @@ export default function RegistrationDetailsPage() {
     }).format(date);
   };
 
-  const getFormatLabel = (format: string) => {
+  const getFormatLabel = (format: string | { name: string; code: string }): string => {
+    if (typeof format === 'object' && format.name) {
+      return format.name;
+    }
     const formats: Record<string, string> = {
       news_report: "گزارش خبری",
       interview: "مصاحبه",
@@ -61,10 +64,13 @@ export default function RegistrationDetailsPage() {
       documentary: "مستند",
       podcast: "پادکست",
     };
-    return formats[format] || format;
+    return formats[format as string] || (format as string);
   };
 
-  const getTopicLabel = (topic: string) => {
+  const getTopicLabel = (topic: string | { name: string; code: string }): string => {
+    if (typeof topic === 'object' && topic.name) {
+      return topic.name;
+    }
     const topics: Record<string, string> = {
       year_slogan: "شعار سال",
       jihad_explanation: "جهاد تبیین",
@@ -78,16 +84,19 @@ export default function RegistrationDetailsPage() {
       sacrifice: "ایثار و شهادت",
       saving: "صرفه‌جویی در مصرف آب و برق",
     };
-    return topics[topic] || topic;
+    return topics[topic as string] || (topic as string);
   };
 
-  const getSpecialSectionLabel = (section?: string) => {
+  const getSpecialSectionLabel = (section?: string | { name: string; code: string }): string => {
     if (!section) return "-";
+    if (typeof section === 'object' && section.name) {
+      return section.name;
+    }
     const sections: Record<string, string> = {
       progress_narrative: "روایت پیشرفت",
       field_narrative_12days: "روایت میدان در جنگ ۱۲ روزه",
     };
-    return sections[section] || section;
+    return sections[section as string] || (section as string);
   };
 
   if (loading) {

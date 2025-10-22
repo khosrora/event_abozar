@@ -56,6 +56,8 @@ export default function EducationDetailPage() {
       title={education.title}
       description={education.description}
       image={education.image}
+      video={education.video}
+      document={education.document}
       publishDate={education.publish_date}
       tags={education.tags}
       breadcrumbs={breadcrumbs}

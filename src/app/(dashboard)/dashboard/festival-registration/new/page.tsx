@@ -1,15 +1,20 @@
 "use client";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { province, cities } from "@/constants/cities";
 import { validatePhoneNumber } from "@/utils/validation";
-import { FESTIVAL_FORMATS, FESTIVAL_TOPICS } from "@/constants";
 import { festivalApi } from "@/services/api";
-import type { FestivalRegistrationData } from "@/types/api";
+import { festivalService } from "@/services";
+import type { 
+  FestivalRegistrationData, 
+  FestivalFormat, 
+  FestivalTopic, 
+  FestivalSpecialSection 
+} from "@/types/api";
 
 type FestivalRegistrationFormValues = {
   fullName: string;
@@ -36,11 +41,6 @@ const educationOptions = [
   "دکتری",
 ];
 
-const specialSections = [
-  { value: "progress_narrative", label: "روایت پیشرفت" },
-  { value: "field_narrative_12days", label: "روایت میدان در جنگ ۱۲ روزه" },
-];
-
 export default function NewFestivalRegistrationPage() {
   const router = useRouter();
   const {
@@ -62,6 +62,36 @@ export default function NewFestivalRegistrationPage() {
   const [cityQuery, setCityQuery] = useState("");
   const [showCityList, setShowCityList] = useState(false);
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
+
+  // Festival options from API
+  const [formats, setFormats] = useState<FestivalFormat[]>([]);
+  const [topics, setTopics] = useState<FestivalTopic[]>([]);
+  const [specialSections, setSpecialSections] = useState<FestivalSpecialSection[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+
+  // Load festival options from API
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        setIsLoadingOptions(true);
+        const [formatsData, topicsData, specialSectionsData] = await Promise.all([
+          festivalService.getFormats(),
+          festivalService.getTopics(),
+          festivalService.getSpecialSections(),
+        ]);
+        setFormats(formatsData);
+        setTopics(topicsData);
+        setSpecialSections(specialSectionsData);
+      } catch (error) {
+        console.error("Error loading festival options:", error);
+        toast.error("خطا در بارگذاری اطلاعات جشنواره");
+      } finally {
+        setIsLoadingOptions(false);
+      }
+    };
+
+    loadOptions();
+  }, []);
 
   const onSubmit: SubmitHandler<FestivalRegistrationFormValues> = async (data) => {
     // Validation
@@ -405,11 +435,14 @@ export default function NewFestivalRegistrationPage() {
               <select
                 {...register("category", { required: "انتخاب قالب جشنواره الزامی است" })}
                 className="select select-bordered w-full"
+                disabled={isLoadingOptions}
               >
-                <option value="">انتخاب کنید</option>
-                {FESTIVAL_FORMATS.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
+                <option value="">
+                  {isLoadingOptions ? "در حال بارگذاری..." : "انتخاب کنید"}
+                </option>
+                {formats.map((format) => (
+                  <option key={format.code} value={format.code}>
+                    {format.name}
                   </option>
                 ))}
               </select>
@@ -428,11 +461,14 @@ export default function NewFestivalRegistrationPage() {
               <select
                 {...register("topic", { required: "محوریت جشنواره باید انتخاب کنید" })}
                 className="select select-bordered w-full"
+                disabled={isLoadingOptions}
               >
-                <option value="">انتخاب کنید</option>
-                {FESTIVAL_TOPICS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                <option value="">
+                  {isLoadingOptions ? "در حال بارگذاری..." : "انتخاب کنید"}
+                </option>
+                {topics.map((topic) => (
+                  <option key={topic.code} value={topic.code}>
+                    {topic.name}
                   </option>
                 ))}
               </select>
@@ -451,11 +487,14 @@ export default function NewFestivalRegistrationPage() {
               <select
                 {...register("specialSection")}
                 className="select select-bordered w-full"
+                disabled={isLoadingOptions}
               >
-                <option value="">انتخاب کنید (اختیاری)</option>
-                {specialSections.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
+                <option value="">
+                  {isLoadingOptions ? "در حال بارگذاری..." : "انتخاب کنید (اختیاری)"}
+                </option>
+                {specialSections.map((section) => (
+                  <option key={section.code} value={section.code}>
+                    {section.name}
                   </option>
                 ))}
               </select>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { festivalService } from "@/services";
@@ -9,8 +9,10 @@ import { CreateWorkData } from "@/types/api";
 import {
   MAX_VIDEO_SIZE,
   MAX_IMAGE_SIZE,
+  MAX_PDF_SIZE,
   ACCEPTED_VIDEO_TYPES,
   ACCEPTED_IMAGE_TYPES,
+  ACCEPTED_PDF_TYPES,
 } from "@/constants";
 import { toast } from "sonner";
 
@@ -30,12 +32,12 @@ export default function SubmitWorkPage() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<WorkSubmissionFormValues>();
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedFile = watch("file")?.[0];
 
@@ -43,29 +45,34 @@ export default function SubmitWorkPage() {
     const file = e.target.files?.[0];
     if (!file) {
       setFilePreview(null);
+      setValue("file", null as any); // Clear the value in form
       return;
     }
 
     // Validate file type
     const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
     const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+    const isPDF = ACCEPTED_PDF_TYPES.includes(file.type);
 
-    if (!isVideo && !isImage) {
-      toast.error("فرمت فایل پشتیبانی نمی‌شود");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+    if (!isVideo && !isImage && !isPDF) {
+      toast.error("فرمت فایل پشتیبانی نمی‌شود. لطفاً فایل ویدیو، تصویر یا PDF ارسال کنید");
+      e.target.value = "";
+      setValue("file", null as any);
+      setFilePreview(null);
       return;
     }
 
     // Validate file size
-    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    let maxSize = MAX_IMAGE_SIZE;
+    if (isVideo) maxSize = MAX_VIDEO_SIZE;
+    if (isPDF) maxSize = MAX_PDF_SIZE;
+    
     if (file.size > maxSize) {
       const maxSizeMB = maxSize / (1024 * 1024);
       toast.error(`حجم فایل نباید بیشتر از ${maxSizeMB} مگابایت باشد`);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      e.target.value = "";
+      setValue("file", null as any);
+      setFilePreview(null);
       return;
     }
 
@@ -175,9 +182,10 @@ export default function SubmitWorkPage() {
           />
         </svg>
         <div className="text-sm">
-          <p>حداکثر حجم فایل برای ویدئو: <strong>100 مگابایت</strong></p>
-          <p>حداکثر حجم فایل برای تصویر: <strong>10 مگابایت</strong></p>
-          <p>فرمت‌های پشتیبانی شده: MP4, AVI, MOV, MKV, JPG, PNG, GIF, WEBP</p>
+          <p>حداکثر حجم فایل برای ویدیو: <strong>5 مگابایت</strong></p>
+          <p>حداکثر حجم فایل برای تصویر: <strong>2 مگابایت</strong></p>
+          <p>حداکثر حجم فایل برای PDF: <strong>10 مگابایت</strong></p>
+          <p>فرمت‌های پشتیبانی شده: MP4, WEBM, OGG, MOV, JPG, PNG, GIF, WEBP, PDF</p>
         </div>
       </div>
 
@@ -238,10 +246,20 @@ export default function SubmitWorkPage() {
                 type="file"
                 {...register("file", { 
                   required: "انتخاب فایل الزامی است",
-                  onChange: handleFileChange
+                  validate: (value) => {
+                    if (!value || value.length === 0) {
+                      return "لطفاً فایل اثر خود را انتخاب کنید";
+                    }
+                    return true;
+                  }
                 })}
+                onChange={(e) => {
+                  handleFileChange(e);
+                  // Also trigger react-hook-form's onChange
+                  register("file").onChange(e);
+                }}
                 className="file-input file-input-bordered w-full"
-                accept={[...ACCEPTED_VIDEO_TYPES, ...ACCEPTED_IMAGE_TYPES].join(",")}
+                accept={[...ACCEPTED_VIDEO_TYPES, ...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_PDF_TYPES].join(",")}
               />
               {errors.file && (
                 <label className="label">
@@ -258,13 +276,25 @@ export default function SubmitWorkPage() {
                 <div className="card-body">
                   <div className="flex items-start gap-4">
                     {/* Preview */}
-                    {filePreview && (
+                    {filePreview ? (
                       <div className="avatar">
                         <div className="w-24 rounded">
                           <img src={filePreview} alt="Preview" />
                         </div>
                       </div>
-                    )}
+                    ) : ACCEPTED_PDF_TYPES.includes(selectedFile.type) ? (
+                      <div className="w-24 h-24 rounded bg-error/10 flex items-center justify-center">
+                        <svg className="w-12 h-12 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    ) : ACCEPTED_VIDEO_TYPES.includes(selectedFile.type) ? (
+                      <div className="w-24 h-24 rounded bg-primary/10 flex items-center justify-center">
+                        <svg className="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    ) : null}
 
                     {/* File Info */}
                     <div className="flex-1 space-y-1">

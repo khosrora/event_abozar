@@ -6,6 +6,9 @@ import {
   Work,
   CreateWorkData,
   UpdateWorkData,
+  FestivalFormat,
+  FestivalTopic,
+  FestivalSpecialSection,
 } from '@/types/api';
 
 /**
@@ -119,5 +122,32 @@ export const festivalService = {
    */
   deleteWork: async (id: number): Promise<void> => {
     await apiClient.delete(`/festival/works/${id}/`);
+  },
+
+  /**
+   * دریافت لیست قالب‌های جشنواره
+   * GET /festival/formats/
+   */
+  getFormats: async (): Promise<FestivalFormat[]> => {
+    const response = await apiClient.get<FestivalFormat[]>('/festival/formats/');
+    return response.data;
+  },
+
+  /**
+   * دریافت لیست محورهای جشنواره
+   * GET /festival/topics/
+   */
+  getTopics: async (): Promise<FestivalTopic[]> => {
+    const response = await apiClient.get<FestivalTopic[]>('/festival/topics/');
+    return response.data;
+  },
+
+  /**
+   * دریافت لیست بخش‌های ویژه جشنواره
+   * GET /festival/special-sections/
+   */
+  getSpecialSections: async (): Promise<FestivalSpecialSection[]> => {
+    const response = await apiClient.get<FestivalSpecialSection[]>('/festival/special-sections/');
+    return response.data;
   },
 };

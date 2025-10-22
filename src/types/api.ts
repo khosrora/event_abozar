@@ -139,6 +139,8 @@ export interface EducationContent {
   title: string;
   description: string;
   image: string | null;
+  video?: string | null;
+  document?: string | null;
   publish_date: string;
   tags: string[];
   created_at: string;
@@ -156,6 +158,18 @@ export interface EducationList {
 export type EducationListResponse = BackendPaginatedResponse<EducationList>;
 export type EducationDetailResponse = EducationContent;
 
+// Festival Option Types
+export interface FestivalOption {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+}
+
+export type FestivalFormat = FestivalOption;
+export type FestivalTopic = FestivalOption;
+export type FestivalSpecialSection = FestivalOption;
+
 // Festival Registration Types (matches Django API)
 export interface FestivalRegistrationData {
   full_name: string;
@@ -168,9 +182,9 @@ export interface FestivalRegistrationData {
   province_id: number;
   city_id: number;
   media_name: string;
-  festival_format: string;
-  festival_topic: string;
-  special_section?: string;
+  festival_format: string; // code from FestivalFormat
+  festival_topic: string; // code from FestivalTopic
+  special_section?: string; // code from FestivalSpecialSection
 }
 
 // Province and City Types
@@ -187,35 +201,6 @@ export interface City {
 
 export type Gender = 'male' | 'female';
 
-export type FestivalFormat = 
-  | 'news_report'
-  | 'interview'
-  | 'article'
-  | 'headline'
-  | 'infographic'
-  | 'motion_graphic'
-  | 'photo'
-  | 'video_clip'
-  | 'documentary'
-  | 'podcast';
-
-export type FestivalTopic = 
-  | 'year_slogan'
-  | 'jihad_explanation'
-  | 'media_industry'
-  | 'social_harms'
-  | 'revolution_achievements'
-  | 'basij'
-  | 'hope_joy'
-  | 'family'
-  | 'lifestyle'
-  | 'sacrifice'
-  | 'saving';
-
-export type SpecialSection = 
-  | 'progress_narrative'
-  | 'field_narrative_12days';
-
 // Festival Registration (short version for list)
 export interface FestivalRegistrationListItem {
   id: number;
@@ -227,7 +212,7 @@ export interface FestivalRegistrationListItem {
   media_name: string;
   festival_format: FestivalFormat;
   festival_topic: FestivalTopic;
-  special_section: SpecialSection;
+  special_section: FestivalSpecialSection;
   created_at: string;
 }
 
@@ -246,7 +231,7 @@ export interface FestivalRegistrationDetail {
   media_name: string;
   festival_format: FestivalFormat;
   festival_topic: FestivalTopic;
-  special_section: SpecialSection;
+  special_section: FestivalSpecialSection;
   created_at: string;
   updated_at: string;
 }

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
+import { VideoViewer, PDFViewer } from "@/components/ui/MediaViewer";
 import { getImageUrl, calculateReadingTime, formatPersianDate } from "@/utils";
 import DescriptionEditor from "../ui/DescriptionEditor";
 
@@ -16,6 +17,8 @@ interface DetailPageLayoutProps {
   title: string;
   description: string;
   image?: string | null;
+  video?: string | null;
+  document?: string | null;
   publishDate?: string;
   tags?: string[];
   breadcrumbs: BreadcrumbItem[];
@@ -29,6 +32,8 @@ export function DetailPageLayout({
   title,
   description,
   image,
+  video,
+  document,
   publishDate,
   tags,
   breadcrumbs,
@@ -103,6 +108,12 @@ export function DetailPageLayout({
       >
         <DescriptionEditor text={description} />
       </article>
+
+      {/* Video Section */}
+      {video && <VideoViewer url={video} />}
+
+      {/* Document Section */}
+      {document && <PDFViewer url={document} />}
 
       {/* Tags */}
       {tags && tags.length > 0 && (
