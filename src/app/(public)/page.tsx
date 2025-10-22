@@ -114,7 +114,7 @@ export default function HomePage() {
   </div>
 
   {/* افکت محو پایین صفحه برای ترکیب طبیعی با بقیه بخش‌ها */}
-  <div className="absolute bottom-0 h-20 md:h-40 w-full bg-gradient-to-t from-gray-100/90 via-gray-100/40 text-sm to-transparent" />
+  <div className="absolute bottom-0 h-20 md:h-40 w-full to-transparent" />
 </section>
 
 
