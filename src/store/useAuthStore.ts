@@ -4,6 +4,7 @@ import { apiClient, getAuthToken } from '@/lib/axios';
 import type { User, LoginData, ApiError } from '@/types/api';
 import { toast } from 'sonner';
 import { accountService } from '@/services/account.service';
+import { ROUTES } from '@/constants';
 
 interface AuthState {
   user: User | null;
@@ -77,10 +78,35 @@ const useAuthStore = create<AuthState>()(
           toast.success('ورود با موفقیت انجام شد');
           return true;
         } catch (error: any) {
+          const statusCode = error.response?.status;
           const errorMessage = error.response?.data?.message || 
                               error.response?.data?.detail ||
-                              'خطا در ورود به سیستم';
-          toast.error(errorMessage);
+                              'کاربر مورد نظر یافت نشد';
+          
+          // چک کردن اینکه آیا کاربر ثبت نام نکرده است
+          const isUserNotFound = statusCode === 404 || 
+                                errorMessage.includes('یافت نشد') ||
+                                errorMessage.includes('not found') ||
+                                errorMessage.toLowerCase().includes('user') && errorMessage.toLowerCase().includes('not') ||
+                                errorMessage.includes('وجود ندارد');
+          
+          if (isUserNotFound) {
+            toast.error('کاربری با این شماره تلفن یافت نشد', {
+              description: 'لطفاً ابتدا ثبت‌نام کنید',
+              action: {
+                label: 'ثبت‌نام',
+                onClick: () => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = ROUTES.SIGNUP;
+                  }
+                }
+              },
+              duration: 5000,
+            });
+          } else {
+            toast.error(errorMessage);
+          }
+          
           set({ isLoading: false });
           return false;
         }

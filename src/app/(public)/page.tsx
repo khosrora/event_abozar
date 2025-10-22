@@ -74,7 +74,7 @@ export default function HomePage() {
   {/* ویدیو پس‌زمینه با لایه نیمه‌تیره */}
   <video
     className="absolute inset-0 h-full w-full object-cover"
-    src="/sample-video.mp4"
+    src="/images/event.mp4"
     autoPlay
     muted
     loop
@@ -114,7 +114,7 @@ export default function HomePage() {
   </div>
 
   {/* افکت محو پایین صفحه برای ترکیب طبیعی با بقیه بخش‌ها */}
-  <div className="absolute bottom-0 h-20 md:h-40 w-full bg-gradient-to-t from-base-100/90 via-base-100/40 to-transparent" />
+  <div className="absolute bottom-0 h-20 md:h-40 w-full bg-gradient-to-t from-gray-100/90 via-gray-100/40 to-transparent" />
 </section>
 
 
