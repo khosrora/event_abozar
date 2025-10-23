@@ -7,6 +7,7 @@ import type { News } from "@/types/api";
 import { DetailPageLayout } from "@/components/layout";
 import { PageLoading, ErrorAlert } from "@/components/ui";
 import { ROUTES } from "@/constants";
+import { incrementViewCount, getViewCount } from "@/utils";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function NewsDetailPage() {
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewCount, setViewCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -24,6 +26,10 @@ export default function NewsDetailPage() {
         setError(null);
         const data = await newsApi.getById(Number(newsId));
         setNews(data);
+        
+        // Increment view count in localStorage
+        const newViewCount = incrementViewCount('news', Number(newsId));
+        setViewCount(newViewCount);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "خطا در بارگذاری اطلاعات خبر"
@@ -75,6 +81,7 @@ export default function NewsDetailPage() {
       publishDate={news.publish_date}
       tags={news.tags}
       breadcrumbs={breadcrumbs}
+      views={viewCount}
     />
   );
 }

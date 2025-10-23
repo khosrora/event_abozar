@@ -5,6 +5,7 @@ const DescriptionEditor = ({ text }: { text: string }) => {
     <div
       dangerouslySetInnerHTML={{ __html: text }}
       style={{ fontFamily: "Vazirmatn, sans-serif" }}
+      className="text-justify"
     />
   );
 };

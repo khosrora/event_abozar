@@ -7,6 +7,7 @@ import type { Event } from "@/types/api";
 import { DetailPageLayout } from "@/components/layout";
 import { PageLoading, ErrorAlert } from "@/components/ui";
 import { ROUTES } from "@/constants";
+import { incrementViewCount } from "@/utils";
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewCount, setViewCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -24,6 +26,10 @@ export default function EventDetailPage() {
         setError(null);
         const data = await eventsApi.getById(Number(eventId));
         setEvent(data);
+        
+        // Increment view count
+        const newViewCount = incrementViewCount('event', Number(eventId));
+        setViewCount(newViewCount);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "خطا در بارگذاری اطلاعات رویداد"
@@ -72,6 +78,7 @@ export default function EventDetailPage() {
       publishDate={event.publish_date}
       tags={event.tags}
       breadcrumbs={breadcrumbs}
+      views={viewCount}
     />
   );
 }

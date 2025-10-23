@@ -61,7 +61,7 @@ export default function ItemCard({
         </figure>
       )}
       <div className="card-body">
-        <h3 className="card-title text-base md:text-lg group-hover:text-primary transition-colors">
+        <h3 className="card-title text-sm md:text-base group-hover:text-primary transition-colors">
           {title}
         </h3>
         {excerpt && (

@@ -7,6 +7,7 @@ import LoadingCard, { LoadingCardGrid, LoadingCardSlider } from "@/components/Lo
 import { useApiList, useApi } from "@/hooks/useApi";
 import { newsApi, eventsApi, educationApi } from "@/services/adaptiveApi";
 import type { NewsList, EventList, EducationList } from "@/types/api";
+import { getViewCount } from "@/utils";
 
 // Shared image source for all image cards and hero poster
 const IMG = "/images/placeholder-event.jpg";
@@ -15,6 +16,10 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"organization" | "branches">(
     "organization"
   );
+  
+  // Track view counts for news items
+  const [newsViewCounts, setNewsViewCounts] = useState<Record<number, number>>({});
+  const [educationViewCounts, setEducationViewCounts] = useState<Record<number, number>>({});
 
   // API calls with stable functions
   const {
@@ -66,6 +71,28 @@ export default function HomePage() {
   // Get current news based on active tab
   const currentNews = activeTab === "organization" ? organizationNews : branchesNews;
   const currentNewsLoading = activeTab === "organization" ? orgNewsLoading : branchNewsLoading;
+
+  // Load view counts for current news
+  useEffect(() => {
+    if (currentNews && currentNews.length > 0) {
+      const counts: Record<number, number> = {};
+      currentNews.forEach(news => {
+        counts[news.id] = getViewCount('news', news.id);
+      });
+      setNewsViewCounts(counts);
+    }
+  }, [currentNews]);
+
+  // Load view counts for education content
+  useEffect(() => {
+    if (educationContent && educationContent.length > 0) {
+      const counts: Record<number, number> = {};
+      educationContent.forEach(item => {
+        counts[item.id] = getViewCount('education', item.id);
+      });
+      setEducationViewCounts(counts);
+    }
+  }, [educationContent]);
 
   return (
     <div dir="rtl" className="flex min-h-screen flex-col bg-base-100">
@@ -179,7 +206,7 @@ export default function HomePage() {
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                   <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
                 </svg>
-                <span>{0} بازدید</span>
+                <span>{(educationViewCounts[item.id] || 0).toLocaleString('fa-IR')} بازدید</span>
               </div>
               <Link 
                 href={`/education/${item.id}`} 
@@ -378,7 +405,7 @@ export default function HomePage() {
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                   <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
                 </svg>
-                <span>{0} بازدید</span>
+                <span>{(newsViewCounts[news.id] || 0).toLocaleString('fa-IR')} بازدید</span>
               </div>
               <Link 
                 href={`/news/${news.id}`} 

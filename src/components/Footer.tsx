@@ -6,7 +6,7 @@ export default function Footer() {
           {/* درباره ما */}
           <div className="sm:col-span-2 lg:col-span-1">
             <h3 className="text-lg md:text-xl font-bold mb-4 text-primary title-kalameh">درباره ما</h3>
-            <p className="text-sm md:text-base leading-relaxed opacity-90 mb-4">
+            <p className="text-sm md:text-sm leading-relaxed opacity-90 mb-4 text-justify">
               سازمان ما با هدف توسعه رسانه‌های فرهنگی و تربیتی فعالیت می‌کند و در
               حوزه آموزش، رویدادها و اخبار رسانه‌ای فعالیت گسترده دارد.
             </p>
@@ -57,7 +57,7 @@ export default function Footer() {
           {/* خدمات */}
           <div>
             <h3 className="text-lg md:text-xl font-bold mb-4 text-primary">خدمات</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 text-justify">
               {[
                 "آموزش رسانه‌ای",
                 "برگزاری رویدادها",
@@ -83,7 +83,7 @@ export default function Footer() {
                 <span className="text-primary mt-1">📞</span>
                 <div>
                   <p className="text-sm font-semibold">تلفن</p>
-                  <p className="text-sm opacity-80">۰۳۱-۱۲۳۴۵۶۷۸</p>
+                  <p className="text-sm opacity-80">031-36040360</p>
                 </div>
               </div>
               
@@ -91,7 +91,7 @@ export default function Footer() {
                 <span className="text-primary mt-1">📍</span>
                 <div>
                   <p className="text-sm font-semibold">آدرس</p>
-                  <p className="text-sm opacity-80 leading-relaxed">اصفهان، خیابان نمونه، پلاک ۱۰</p>
+                  <p className="text-sm opacity-80 leading-relaxed">اصفهان خیابان شهدای صفه روبروی بیمارستان الزهرا</p>
                 </div>
               </div>
               
