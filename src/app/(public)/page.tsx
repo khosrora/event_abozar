@@ -116,11 +116,11 @@ export default function HomePage() {
   <div className="relative z-10 flex h-full min-h-[70vh] md:min-h-[80vh] flex-col items-center justify-center text-center text-white px-4">
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold title-kalameh leading-tight drop-shadow-lg animate-fadeIn mb-4 md:mb-6">
-        سازمان توسعه رسانه‌های فرهنگی و تربیتی
+          پورتال سازمان بسیج رسانه اصفهان
       </h1>
 
       <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed animate-fadeIn [animation-delay:0.2s] mb-6 md:mb-8 max-w-2xl mx-auto">
-        پلتفرمی برای آموزش، رویدادها و پوشش خبری کانون‌ها در سراسر کشور
+        پلتفرمی برای آموزش، رویدادها و پوشش خبری سازمان کانون‌های شهرستان ها
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 animate-fadeIn [animation-delay:0.4s]">
