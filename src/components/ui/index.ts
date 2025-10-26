@@ -7,3 +7,4 @@ export * from './ErrorAlert';
 export * from './Badge';
 export * from './Breadcrumb';
 export * from './MediaViewer';
+export * from './ImageLightbox';

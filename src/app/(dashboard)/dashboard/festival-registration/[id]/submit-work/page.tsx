@@ -20,6 +20,7 @@ import { toast } from "sonner";
 type WorkSubmissionFormValues = {
   title: string;
   description: string;
+  publish_link?: string;
   file: FileList;
 };
 
@@ -108,6 +109,7 @@ export default function SubmitWorkPage() {
         festival_registration: parseInt(registrationId),
         title: data.title,
         description: data.description,
+        publish_link: data.publish_link || undefined,
         file: file,
       };
 
@@ -233,6 +235,23 @@ export default function SubmitWorkPage() {
                   </span>
                 </label>
               )}
+            </div>
+
+            {/* لینک منتشرشده */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">
+                  لینک منتشرشده (اختیاری)
+                </span>
+              </label>
+              <input
+                type="url"
+                {...register("publish_link")}
+                className="input input-bordered w-full"
+                placeholder="https://example.com/news-link"
+              />
+       
+
             </div>
 
             {/* فایل */}

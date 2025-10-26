@@ -18,6 +18,7 @@ import { toast } from "sonner";
 type WorkEditFormValues = {
   title: string;
   description: string;
+  publish_link?: string;
   file?: FileList;
 };
 
@@ -60,6 +61,9 @@ export default function EditWorkPage() {
         // Set form values
         setValue("title", work.title);
         setValue("description", work.description);
+        if (work.publish_link) {
+          setValue("publish_link", work.publish_link);
+        }
         
         // Set current file URL
         if (work.file_url) {
@@ -116,6 +120,7 @@ export default function EditWorkPage() {
       const workData: UpdateWorkData = {
         title: data.title,
         description: data.description,
+        publish_link: data.publish_link || undefined,
       };
 
       // Add file only if new file is selected
@@ -315,6 +320,24 @@ export default function EditWorkPage() {
                   {errors.description.message}
                 </p>
               )}
+            </div>
+
+            {/* Publish Link Field */}
+            <div>
+              <label
+                htmlFor="publish_link"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                لینک منتشرشده (اختیاری)
+              </label>
+              <input
+                id="publish_link"
+                type="url"
+                {...register("publish_link")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="https://example.com/news-link"
+              />
+
             </div>
 
             {/* Current File Display */}

@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { VideoViewer, PDFViewer } from "@/components/ui/MediaViewer";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { getImageUrl, calculateReadingTime, formatPersianDate } from "@/utils";
 import DescriptionEditor from "../ui/DescriptionEditor";
 
@@ -68,13 +69,12 @@ export function DetailPageLayout({
       {/* Hero Section */}
       <section className="mt-4 overflow-hidden rounded-box border bg-base-200">
         <figure className="relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={getImageUrl(image)}
+          <ImageLightbox
+            src={image}
             alt={title}
-            className="h-72 w-full object-cover md:h-124"
+            className="h-72 w-full object-cover md:h-96 cursor-pointer"
+            containerClassName="w-full"
           />
- 
         </figure>
 
         <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">

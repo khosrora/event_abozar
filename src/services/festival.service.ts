@@ -71,6 +71,7 @@ export const festivalService = {
       festival_registration: data.festival_registration,
       title: data.title,
       description: data.description,
+      ...(data.publish_link && { publish_link: data.publish_link }),
       file: data.file,
     });
 
@@ -93,6 +94,7 @@ export const festivalService = {
       const formData = createFormData({
         ...(data.title && { title: data.title }),
         ...(data.description && { description: data.description }),
+        ...(data.publish_link && { publish_link: data.publish_link }),
         file: data.file,
       });
 
@@ -112,6 +114,7 @@ export const festivalService = {
     const response = await apiClient.put<Work>(`/festival/works/${id}/`, {
       ...(data.title && { title: data.title }),
       ...(data.description && { description: data.description }),
+      ...(data.publish_link && { publish_link: data.publish_link }),
     });
     return response.data;
   },

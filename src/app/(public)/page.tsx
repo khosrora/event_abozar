@@ -116,11 +116,11 @@ export default function HomePage() {
   <div className="relative z-10 flex h-full min-h-[70vh] md:min-h-[80vh] flex-col items-center justify-center text-center text-white px-4">
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold title-kalameh leading-tight drop-shadow-lg animate-fadeIn mb-4 md:mb-6">
-      پرتال سازمان رسانه‌ استان اصفهان
+        سازمان توسعه رسانه‌های فرهنگی و تربیتی
       </h1>
 
       <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed animate-fadeIn [animation-delay:0.2s] mb-6 md:mb-8 max-w-2xl mx-auto">
-        پلتفرمی برای آموزش، رویدادها و پوشش خبری سازمان و کانون‌های شهرستان ها
+        پلتفرمی برای آموزش، رویدادها و پوشش خبری کانون‌ها در سراسر کشور
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 animate-fadeIn [animation-delay:0.4s]">
@@ -146,7 +146,83 @@ export default function HomePage() {
 
 
       <main className="container mx-auto flex-1 space-y-16 px-4 py-10 md:px-6 lg:px-8">
-     
+        {/* آموزش */}
+<AnimatedSection>
+<section className="relative py-12">
+  <div className="mb-6 flex items-center justify-between gap-4">
+    <h2 className="text-3xl font-extrabold text-primary title-kalameh">آموزش</h2>
+    <Link href="/education" className="btn btn-sm md:btn-md btn-outline">
+      مشاهده همه
+    </Link>
+  </div>
+
+  {/* Scrollable multi-card section */}
+  <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-base-100 hover:scrollbar-thumb-primary/50">
+    {educationLoading ? (
+      // Loading skeleton
+      Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="shrink-0 w-64 sm:w-72 md:w-80">
+          <LoadingCard />
+        </div>
+      ))
+    ) : educationError ? (
+      <div className="w-full text-center py-8">
+        <p className="text-error">خطا در بارگذاری محتوای آموزشی</p>
+        <button 
+          className="btn btn-primary btn-sm mt-2"
+          onClick={() => window.location.reload()}
+        >
+          تلاش مجدد
+        </button>
+      </div>
+    ) : (
+      educationContent?.map((item) => (
+        <div
+          key={item.id}
+          className="snap-center shrink-0 w-64 sm:w-72 md:w-80 bg-base-100 card shadow-md hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden group border border-base-200"
+        >
+          <figure className="relative overflow-hidden">
+            <img
+              src={item.image || IMG}
+              alt={item.title}
+              className="h-44 md:h-48 w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="absolute top-3 right-3 bg-primary text-primary-content text-xs px-2 py-1 rounded-full font-semibold">
+              {item.tags?.[0] || "عمومی"}
+            </div>
+          </figure>
+          <div className="card-body p-4 md:p-5">
+            <h3 className="card-title text-base md:text-lg font-bold text-base-content group-hover:text-primary transition-colors duration-300">
+              {item.title}
+            </h3>
+            <p className="text-xs md:text-sm opacity-70 leading-relaxed line-clamp-3">
+              {item.title}
+            </p>
+            <div className="card-actions justify-between items-center mt-4">
+              <div className="flex items-center gap-1 text-xs text-base-content/60">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                </svg>
+                <span>{(educationViewCounts[item.id] || 0).toLocaleString('fa-IR')} بازدید</span>
+              </div>
+              <Link 
+                href={`/education/${item.id}`} 
+                className="btn btn-primary btn-sm hover:btn-secondary transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                مشاهده
+              </Link>
+            </div>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</section>
+</AnimatedSection>
+        
         {/* رویدادها و جشنواره‌ها */}
 <AnimatedSection animation="slideInRight" delay={200}>
 <section className="relative py-12">
@@ -350,84 +426,6 @@ export default function HomePage() {
 </section>
 </AnimatedSection>
 
-        {/* آموزش */}
-<AnimatedSection>
-<section className="relative py-12">
-  <div className="mb-6 flex items-center justify-between gap-4">
-    <h2 className="text-3xl font-extrabold text-primary title-kalameh">آموزش</h2>
-    <Link href="/education" className="btn btn-sm md:btn-md btn-outline">
-      مشاهده همه
-    </Link>
-  </div>
-
-  {/* Scrollable multi-card section */}
-  <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-base-100 hover:scrollbar-thumb-primary/50">
-    {educationLoading ? (
-      // Loading skeleton
-      Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="shrink-0 w-64 sm:w-72 md:w-80">
-          <LoadingCard />
-        </div>
-      ))
-    ) : educationError ? (
-      <div className="w-full text-center py-8">
-        <p className="text-error">خطا در بارگذاری محتوای آموزشی</p>
-        <button 
-          className="btn btn-primary btn-sm mt-2"
-          onClick={() => window.location.reload()}
-        >
-          تلاش مجدد
-        </button>
-      </div>
-    ) : (
-      educationContent?.map((item) => (
-        <div
-          key={item.id}
-          className="snap-center shrink-0 w-64 sm:w-72 md:w-80 bg-base-100 card shadow-md hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden group border border-base-200"
-        >
-          <figure className="relative overflow-hidden">
-            <img
-              src={item.image || IMG}
-              alt={item.title}
-              className="h-44 md:h-48 w-full object-cover transition-transform duration-700 group-hover:scale-110"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            <div className="absolute top-3 right-3 bg-primary text-primary-content text-xs px-2 py-1 rounded-full font-semibold">
-              {item.tags?.[0] || "عمومی"}
-            </div>
-          </figure>
-          <div className="card-body p-4 md:p-5">
-            <h3 className="card-title text-base md:text-lg font-bold text-base-content group-hover:text-primary transition-colors duration-300">
-              {item.title}
-            </h3>
-            <p className="text-xs md:text-sm opacity-70 leading-relaxed line-clamp-3">
-              {item.title}
-            </p>
-            <div className="card-actions justify-between items-center mt-4">
-              <div className="flex items-center gap-1 text-xs text-base-content/60">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
-                </svg>
-                <span>{(educationViewCounts[item.id] || 0).toLocaleString('fa-IR')} بازدید</span>
-              </div>
-              <Link 
-                href={`/education/${item.id}`} 
-                className="btn btn-primary btn-sm hover:btn-secondary transition-all duration-300 shadow-md hover:shadow-lg"
-              >
-                مشاهده
-              </Link>
-            </div>
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-</section>
-</AnimatedSection>
-        
-     
       </main>
     </div>
   );

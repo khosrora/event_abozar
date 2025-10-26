@@ -94,6 +94,7 @@ export interface News {
   description: string;
   image: string | null;
   publish_date: string;
+  publish_link?: string | null;
   tags: string[];
   created_at: string;
   updated_at: string;
@@ -103,6 +104,7 @@ export interface NewsList {
   id: number;
   title: string;
   publish_date: string;
+  publish_link?: string | null;
   tags: string[];
   image?: string | null;
 }
@@ -117,6 +119,7 @@ export interface Event {
   description: string;
   image: string | null;
   publish_date: string;
+  publish_link?: string | null;
   tags: string[];
   created_at: string;
   updated_at: string;
@@ -126,6 +129,7 @@ export interface EventList {
   id: number;
   title: string;
   publish_date: string;
+  publish_link?: string | null;
   tags: string[];
   image?: string | null;
 }
@@ -142,6 +146,7 @@ export interface EducationContent {
   video?: string | null;
   document?: string | null;
   publish_date: string;
+  publish_link?: string | null;
   tags: string[];
   created_at: string;
   updated_at: string;
@@ -344,6 +349,7 @@ export interface Work {
   id: number;
   title: string;
   description: string;
+  publish_link?: string;
   file_url: string;
   registration_name: string;
   media_name: string;
@@ -357,12 +363,14 @@ export interface CreateWorkData {
   festival_registration: number;
   title: string;
   description: string;
+  publish_link?: string;
   file: File;
 }
 
 export interface UpdateWorkData {
   title?: string;
   description?: string;
+  publish_link?: string;
   file?: File;
 }
 
