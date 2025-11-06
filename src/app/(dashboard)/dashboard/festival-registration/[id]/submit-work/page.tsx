@@ -184,8 +184,8 @@ export default function SubmitWorkPage() {
           />
         </svg>
         <div className="text-sm">
-          <p>حداکثر حجم فایل برای ویدیو: <strong>5 مگابایت</strong></p>
-          <p>حداکثر حجم فایل برای تصویر: <strong>2 مگابایت</strong></p>
+          <p>حداکثر حجم فایل برای ویدیو: <strong>70 مگابایت</strong></p>
+          <p>حداکثر حجم فایل برای تصویر: <strong>10 مگابایت</strong></p>
           <p>حداکثر حجم فایل برای PDF: <strong>10 مگابایت</strong></p>
           <p>فرمت‌های پشتیبانی شده: MP4, WEBM, OGG, MOV, JPG, PNG, GIF, WEBP, PDF</p>
         </div>
